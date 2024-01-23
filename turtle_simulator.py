@@ -2,6 +2,7 @@
     and all related functions for the turtle simulator.
 """
 import tkinter as tk
+import math
 
 class TurtleSimulator:
     def __init__(self, window, canvas, start_x=150, start_y=150, color="black"):
@@ -17,6 +18,7 @@ class TurtleSimulator:
         self.window = window
         self.x = start_x
         self.y = start_y
+        self.angle = 0 
 
 
     def _move(self, new_x, new_y):
@@ -25,8 +27,21 @@ class TurtleSimulator:
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
+
         self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
+
+    def move_at_angle(self, distance):
+        """
+        Moves the turtle at a given angle(for turning left and right).
+        distance: Distance to move.
+        """
+        radian_angle = math.radians(self.angle)
+        new_x = self.x + distance * math.cos(radian_angle)
+        new_y = self.y - distance * math.sin(radian_angle)  # Subtracting because y-coordinates are inverted in most GUIs
+        self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
+        self.x, self.y = new_x, new_y
+
 
     def move_up(self):
         """
@@ -53,11 +68,13 @@ class TurtleSimulator:
         self._move(self.x + 10, self.y)
 
     def turn_left(self):
-        pass
-
+        self.angle = (self.angle + 90) % 360
+        self.move_at_angle(10)
 
     def turn_right(self):
-        pass
+        self.angle = (self.angle + 90) % 360
+        self.move_at_angle(10)
+
 
     def button_display(self):
         tk.Button(self.window, text="↑", command=self.move_up).grid(column=0, row=1)
