@@ -18,24 +18,39 @@ class TurtleSimulator:
         self.x = start_x
         self.y = start_y
 
-    def move_up(self):
-        self.canvas.create_line(self.x, self.y, self.x, self.y + 10, fill="black", width=1)
-        self.y += 10
 
+    def _move(self, new_x, new_y):
+        """
+        Moves the turtle to a new position and draws.
+        new_x: New x-coordinate.
+        new_y: New y-coordinate.
+        """
+        self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
+        self.x, self.y = new_x, new_y
+
+    def move_up(self):
+        """
+        Moves the turtle up.
+        """
+        self._move(self.x, self.y - 10)
 
     def move_down(self):
-        self.canvas.create_line(self.x, self.y, self.x, self.y - 10, fill="black", width=1)
-        self.y -= 10
-
+        """
+        Moves the turtle down.
+        """
+        self._move(self.x, self.y + 10)
 
     def move_left(self):
-        self.canvas.create_line(self.x, self.y, self.x - 10,self.y, fill="black", width=1)
-        self.x -= 10
-
+        """
+        Moves the turtle left.
+        """
+        self._move(self.x - 10, self.y)
 
     def move_right(self):
-        self.canvas.create_line(self.x, self.y, self.x + 10,self.y, fill="black", width=1)
-        self.x += 10
+        """
+        Moves the turtle right.
+        """
+        self._move(self.x + 10, self.y)
 
     def turn_left(self):
         pass
