@@ -74,6 +74,18 @@ class TurtleSimulator:
         self._update_turtle_icon()
         self.canvas.update()
 
+    def mouse_move(self, new_x, new_y):
+        """
+        Moves the turtle to a new position based on mouse click.
+        new_x: New x-coordinate.
+        new_y: New y-coordinate.
+        """
+        if self.pen_down:
+            self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+        self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
+
     def set_colour(self, colour):
         """
         Sets the colour of the line.
