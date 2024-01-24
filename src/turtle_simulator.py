@@ -38,7 +38,7 @@ class TurtleSimulator:
         """
         radian_angle = math.radians(self.angle)
         new_x = self.x + distance * math.cos(radian_angle)
-        new_y = self.y - distance * math.sin(radian_angle)  # Subtracting because y-coordinates are inverted in most GUIs
+        new_y = self.y - distance * math.sin(radian_angle)
         self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
 
@@ -82,6 +82,6 @@ class TurtleSimulator:
         tk.Button(self.window, text="←", command=self.move_left).grid(column=2, row=1)
         tk.Button(self.window, text="→", command=self.move_right).grid(column=3, row=1)
         tk.Button(self.window, text="↰", command=self.turn_left).grid(column=1, row=2)
-        tk.Button(self.window, text="↱", command=self.turn_left).grid(column=2, row=2)
+        tk.Button(self.window, text="↱", command=self.turn_right).grid(column=2, row=2)
 
 
