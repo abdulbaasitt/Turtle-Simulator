@@ -2,6 +2,8 @@
     and all related functions for the turtle simulator.
 """
 import tkinter as tk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk
 import math
 
 class TurtleSimulator:
@@ -20,6 +22,40 @@ class TurtleSimulator:
         self.y = start_y
         self.angle = 0 
         self.pen_down = True
+        turtleImage = Image.open("../Assets/turtle_white_background.png")
+        self.turtle_image = ImageTk.PhotoImage(turtleImage)
+        # self.turtle_image = PhotoImage(file="../Assets/turtle_white_background.png")
+        self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
+        self.turtleImage = turtleImage
+
+    def _rotate_turtle_icon(self, angle):
+        """
+        Rotates the turtle icon.
+        angle: Angle to rotate the turtle icon.
+        """
+        center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
+        rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
+        self.turtle_image = ImageTk.PhotoImage(rotated_image)
+        self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
+        self.canvas.coords(self.turtle_icon, self.x, self.y)
+
+    def _create_turtle_icon(self, x, y):
+        """
+        Creates the turtle icon on the canvas.
+        x: x-coordinate of the turtle.
+        y: y-coordinate of the turtle.
+        """
+        size = 10
+        point = [(x - size, y - size), (x + size, y - size), (x, y + size)]
+        return self.canvas.create_polygon(point, fill="green")
+    
+
+    def _update_turtle_icon(self):
+        """
+        Updates the turtle icon on the canvas.
+        """
+        self._rotate_turtle_icon(-self.angle)
+        self.canvas.coords(self.turtle_icon,self.x, self.y)
 
 
     def set_pen_up(self):
@@ -44,6 +80,8 @@ class TurtleSimulator:
         if self.pen_down:
             self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
 
     def move_at_angle(self, distance):
         """
@@ -56,31 +94,40 @@ class TurtleSimulator:
         if self.pen_down:
             self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
 
 
     def move_up(self):
         """
         Moves the turtle up.
         """
+        self.angle = 270
         self._move(self.x, self.y - 10)
+        self._update_turtle_icon()
 
     def move_down(self):
         """
         Moves the turtle down.
         """
+        self.angle = 90
         self._move(self.x, self.y + 10)
+        self._update_turtle_icon()
 
     def move_left(self):
         """
         Moves the turtle left.
         """
+        self.angle = 180
         self._move(self.x - 10, self.y)
+        self._update_turtle_icon()  
 
     def move_right(self):
         """
         Moves the turtle right.
         """
+        self.angle = 0
         self._move(self.x + 10, self.y)
+        self._update_turtle_icon()
 
     def turn_left(self):
         self.angle = (self.angle + 90) % 360
