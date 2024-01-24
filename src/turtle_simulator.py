@@ -19,6 +19,20 @@ class TurtleSimulator:
         self.x = start_x
         self.y = start_y
         self.angle = 0 
+        self.pen_down = True
+
+
+    def set_pen_up(self):
+        """
+        Lifts the pen up.
+        """
+        self.pen_down = False
+    
+    def set_pen_down(self):
+        """
+        Puts the pen down.
+        """
+        self.pen_down = True
 
 
     def _move(self, new_x, new_y):
@@ -27,8 +41,8 @@ class TurtleSimulator:
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
-
-        self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
+        if self.pen_down:
+            self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
 
     def move_at_angle(self, distance):
@@ -39,7 +53,8 @@ class TurtleSimulator:
         radian_angle = math.radians(self.angle)
         new_x = self.x + distance * math.cos(radian_angle)
         new_y = self.y - distance * math.sin(radian_angle)
-        self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
+        if self.pen_down:
+            self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
         self.x, self.y = new_x, new_y
 
 
@@ -83,5 +98,7 @@ class TurtleSimulator:
         tk.Button(self.window, text="→", command=self.move_right).grid(column=3, row=1)
         tk.Button(self.window, text="↰", command=self.turn_left).grid(column=1, row=2)
         tk.Button(self.window, text="↱", command=self.turn_right).grid(column=2, row=2)
+        tk.Button(self.window, text="Pen Up", command=self.set_pen_up).grid(column=1, row=3)
+        tk.Button(self.window, text="Pen Down", command=self.set_pen_down).grid(column=2, row=3)
 
 
