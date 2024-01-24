@@ -24,7 +24,6 @@ class TurtleSimulator:
         self.pen_down = True
         turtleImage = Image.open("../Assets/turtle_white_background.png")
         self.turtle_image = ImageTk.PhotoImage(turtleImage)
-        # self.turtle_image = PhotoImage(file="../Assets/turtle_white_background.png")
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtleImage = turtleImage
 
@@ -39,16 +38,6 @@ class TurtleSimulator:
         self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
         self.canvas.coords(self.turtle_icon, self.x, self.y)
 
-    def _create_turtle_icon(self, x, y):
-        """
-        Creates the turtle icon on the canvas.
-        x: x-coordinate of the turtle.
-        y: y-coordinate of the turtle.
-        """
-        size = 10
-        point = [(x - size, y - size), (x + size, y - size), (x, y + size)]
-        return self.canvas.create_polygon(point, fill="green")
-    
 
     def _update_turtle_icon(self):
         """
