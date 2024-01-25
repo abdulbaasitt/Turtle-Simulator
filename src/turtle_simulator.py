@@ -28,6 +28,8 @@ class TurtleSimulator:
         self.turtle_image = ImageTk.PhotoImage(turtleImage)
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtleImage = turtleImage
+        self.actions = []
+        self.undone_actions = []    
 
     def _rotate_turtle_icon(self, angle):
         """
@@ -62,17 +64,73 @@ class TurtleSimulator:
         self.pen_down = True
 
 
+    def undo(self):
+        """
+        Undoes the last action.
+        """
+        if len(self.actions) > 0:
+            action = self.actions.pop()
+            print(f"Undoing Action: {action}")
+            self.undone_actions.append(action)
+            if action['type'] == 'move':
+                self.x, self.y = action['start']
+                self._update_turtle_icon()
+                # self.canvas.delete(self.canvas.find_withtag(tk.ALL)[-1])
+                if 'line_id' in action:
+                    self.canvas.delete(action['line_id'])
+                self.canvas.update()
+            elif action['type'] == 'pen':
+                self.pen_down = not self.pen_down
+            elif action['type'] == 'color':
+                self.line_colour = action['color']
+            elif action['type'] == 'width':
+                self.line_width = action['width']
+            
+            if not self.canvas.find_withtag(self.turtle_icon):
+                self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
+
+    def redo(self):
+        """
+        Redoes the last action.
+        """
+        if len(self.undone_actions) > 0:
+            action = self.undone_actions.pop()
+            print(f"Redoing Action: {action}")
+            self.actions.append(action)
+            if action['type'] == 'move':
+                self.x, self.y = action['end']
+                self._update_turtle_icon()
+                if action['pen_down']:
+                    new_line_id = self.canvas.create_line(action['start'][0], action['start'][1], action['end'][0], action['end'][1], fill= action['color'], width=action['width'])
+                    action['line_id'] = new_line_id
+                self.canvas.update()
+            elif action['type'] == 'pen':
+                self.pen_down = not self.pen_down
+            elif action['type'] == 'color':
+                self.line_colour = action['color']
+            elif action['type'] == 'width':
+                self.line_width = action['width']
+
     def _move(self, new_x, new_y):
         """
         Moves the turtle to a new position and draws.
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
+        start_pos = (self.x, self.y)
+
         if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
+
 
     def mouse_move(self, new_x, new_y):
         """
@@ -80,11 +138,22 @@ class TurtleSimulator:
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
+
+        start_pos = (self.x, self.y)
+        print(f"Before Move: Start ({self.x}, {self.y})")
+
         if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+        print(f"Action Recorded: {action}")
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
+
 
     def set_colour(self, colour):
         """
@@ -197,3 +266,7 @@ class TurtleSimulator:
         # pen up/down buttons
         tk.Button(self.window, text="Pen Up", command=self.set_pen_up).grid(column=1, row=3)
         tk.Button(self.window, text="Pen Down", command=self.set_pen_down).grid(column=2, row=3)
+
+        # undo/redo buttons
+        tk.Button(self.window, text="Undo", command=self.undo).grid(column=4, row=1)
+        tk.Button(self.window, text="Redo", command=self.redo).grid(column=5, row=1)
