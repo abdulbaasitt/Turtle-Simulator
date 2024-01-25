@@ -3,11 +3,13 @@ from turtle_simulator import TurtleSimulator
 
 def main():
     window = tk.Tk()
+    canvas_height = 600
+    canvas_width = 600
 
-    canvas = tk.Canvas(window, bg="white", height=300, width=300)
-    canvas.grid(column=0, row=0, columnspan=4)
+    canvas = tk.Canvas(window, bg="white", height=canvas_height, width=canvas_width)
+    canvas.grid(column=0, row=0, columnspan=6)
 
-    turtle = TurtleSimulator(window, canvas)
+    turtle = TurtleSimulator(window, canvas, canvas_height, canvas_width)
     turtle.button_display()
 
     # Bind keyboard events

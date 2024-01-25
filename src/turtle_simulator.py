@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import math
 
 class TurtleSimulator:
-    def __init__(self, window, canvas, start_x=150, start_y=150, color="black"):
+    def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
         """
         Initialise the turtle with a starting position, colour, and state.
         canvas: tkinter canvas object where the turtle will draw.
@@ -18,8 +18,8 @@ class TurtleSimulator:
         """
         self.canvas = canvas
         self.window = window
-        self.x = start_x
-        self.y = start_y
+        self.x = canvas_width//2
+        self.y = canvas_height //2
         self.line_colour = "black"
         self.line_width = 1
         self.angle = 0 
@@ -68,48 +68,56 @@ class TurtleSimulator:
         """
         Undoes the last action.
         """
-        if len(self.actions) > 0:
-            action = self.actions.pop()
-            print(f"Undoing Action: {action}")
-            self.undone_actions.append(action)
-            if action['type'] == 'move':
-                self.x, self.y = action['start']
-                self._update_turtle_icon()
-                # self.canvas.delete(self.canvas.find_withtag(tk.ALL)[-1])
-                if 'line_id' in action:
-                    self.canvas.delete(action['line_id'])
-                self.canvas.update()
-            elif action['type'] == 'pen':
-                self.pen_down = not self.pen_down
-            elif action['type'] == 'color':
-                self.line_colour = action['color']
-            elif action['type'] == 'width':
-                self.line_width = action['width']
-            
-            if not self.canvas.find_withtag(self.turtle_icon):
-                self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
+        try :
+            if len(self.actions) > 0:
+                action = self.actions.pop()
+                print(f"Undoing Action: {action}")
+                self.undone_actions.append(action)
+                if action['type'] == 'move':
+                    self.x, self.y = action['start']
+                    self._update_turtle_icon()
+                    # self.canvas.delete(self.canvas.find_withtag(tk.ALL)[-1])
+                    if 'line_id' in action:
+                        self.canvas.delete(action['line_id'])
+                    self.canvas.update()
+                elif action['type'] == 'pen':
+                    self.pen_down = not self.pen_down
+                elif action['type'] == 'color':
+                    self.line_colour = action['color']
+                elif action['type'] == 'width':
+                    self.line_width = action['width']
+                
+                if not self.canvas.find_withtag(self.turtle_icon):
+                    self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
+        except IndexError or KeyError or UnboundLocalError as e:
+            print(e)
+            print("No actions to undo.")
 
     def redo(self):
         """
         Redoes the last action.
         """
-        if len(self.undone_actions) > 0:
-            action = self.undone_actions.pop()
-            print(f"Redoing Action: {action}")
-            self.actions.append(action)
-            if action['type'] == 'move':
-                self.x, self.y = action['end']
-                self._update_turtle_icon()
-                if action['pen_down']:
-                    new_line_id = self.canvas.create_line(action['start'][0], action['start'][1], action['end'][0], action['end'][1], fill= action['color'], width=action['width'])
-                    action['line_id'] = new_line_id
-                self.canvas.update()
-            elif action['type'] == 'pen':
-                self.pen_down = not self.pen_down
-            elif action['type'] == 'color':
-                self.line_colour = action['color']
-            elif action['type'] == 'width':
-                self.line_width = action['width']
+        try:
+            if len(self.undone_actions) > 0:
+                action = self.undone_actions.pop()
+                print(f"Redoing Action: {action}")
+                self.actions.append(action)
+                if action['type'] == 'move':
+                    self.x, self.y = action['end']
+                    self._update_turtle_icon()
+                    if action['pen_down']:
+                        new_line_id = self.canvas.create_line(action['start'][0], action['start'][1], action['end'][0], action['end'][1], fill= action['color'], width=action['width'])
+                        action['line_id'] = new_line_id
+                    self.canvas.update()
+                elif action['type'] == 'pen':
+                    self.pen_down = not self.pen_down
+                elif action['type'] == 'color':
+                    self.line_colour = action['color']
+                elif action['type'] == 'width':
+                    self.line_width = action['width']
+        except IndexError or KeyError or UnboundLocalError as e:
+            print(e)
+            print("No actions to redo.")
 
     def _move(self, new_x, new_y):
         """
