@@ -24,7 +24,8 @@ class TurtleSimulator:
         self.line_width = 1
         self.angle = 0 
         self.pen_down = True
-        turtleImage = Image.open("../Assets/turtle_white_background.png")
+        turtleImage = Image.open("../Assets/turtle_white_background.png") #TODO:  add file not found exception(FileNotFoundError:g)
+        # turtleImage = Image.open("../Assets/roamer_robot_small.png")
         self.turtle_image = ImageTk.PhotoImage(turtleImage)
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtleImage = turtleImage
