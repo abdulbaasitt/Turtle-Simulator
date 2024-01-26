@@ -233,6 +233,24 @@ class TurtleSimulator:
         self.angle = (self.angle + 90) % 360
         self.move_at_angle(10)
 
+    
+    def redraw(self, actions):
+        """
+        Redraws the turtle on the canvas.
+        """
+        self.canvas.delete("all")
+        self._update_turtle_icon()
+
+        for action in actions:
+            if action['type'] == 'move':
+            # Recreate the line on the canvas
+                self.canvas.create_line(action['start'][0], action['start'][1],
+                                    action['end'][0], action['end'][1],
+                                    fill=action['color'], width=action['width'])
+        # self._update_turtle_icon()
+        self.canvas.update()
+
+
 
     def button_display(self):
         # colour dropdown menu

@@ -1,9 +1,12 @@
 import tkinter as tk
 from turtle_simulator import TurtleSimulator
+import time # for saving canvas as image
 
 import tkinter.messagebox # for about section
 import tkinter.filedialog # for open file
-
+import json # for saving and loading files
+from PIL import ImageGrab # for saving canvas as image
+from PIL import Image, ImageTk # for loading image
 
 class TurtleSimulatorAppUI:
     def __init__(self):
@@ -25,8 +28,12 @@ class TurtleSimulatorAppUI:
         file_menu = tk.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="New", command=self.new_file)  
         file_menu.add_command(label="Open", command=self.open_file)
+        file_menu.add_command(label="Save", command=self.save_drawing)
+        file_menu.add_command(label="Save as Image", command=self.save_as_image)
+        file_menu.add_command(label="Load Image", command=self.load_image)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=window.quit)
+
         menu_bar.add_cascade(label="File", menu=file_menu)
 
         # Edit menu
@@ -72,12 +79,71 @@ class TurtleSimulatorAppUI:
         canvas.bind("<Button-1>", lambda e: turtle.mouse_move(e.x, e.y))
 
     def new_file(self):
-        pass
+        self.canvas.delete("all")
+        self.turtle.actions.clear()
+        self.turtle.undone_actions.clear()
 
     def open_file(self):
-        file_path = tk.filedialog.askopenfilename()
+        file_path = tk.filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if file_path:
-            pass
+            with open(file_path, 'r') as file:
+               actions = json.load(file)
+               self.turtle.redraw(actions)
+
+
+    def save_drawing(self):
+        file_path = tk.filedialog.asksaveasfilename(defaultextension=".json")
+        print("File saved at:", file_path)
+
+        if file_path:
+            with open(file_path, 'w') as file:
+                json.dump(self.turtle.actions, file)
+
+    def save_as_image(self):
+        # file types to save as
+        filetypes = [('PNG files', '*.png'), ('JPEG files', '*.jpeg;*.jpg')]
+
+        # get file path from user
+        file_path = tk.filedialog.asksaveasfilename(filetypes=filetypes)
+        
+        if not file_path:
+            return # user cancelled save
+        
+        # Infer the file type from the file_path extension
+        file_type = file_path.split('.')[-1].upper()
+
+        # current size of canvas
+        self.window.update_idletasks() 
+        time.sleep(0.5)  # to prevent save dialog box
+        x = self.canvas.winfo_rootx()
+        y = self.canvas.winfo_rooty()
+        x1 = x + self.canvas.winfo_width()
+        y1 = y + self.canvas.winfo_height()
+    
+        try:
+            # Grab the image of the canvas area and save it
+            ImageGrab.grab().crop((x, y, x1, y1)).save(file_path, file_type)
+            tk.messagebox.showinfo("Success", f"Image saved successfully as {file_type} at {file_path}")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Error saving image as {file_type}: {e}")
+            print("Error saving image:", e)
+
+
+    def load_image(self):
+        #  get file path from user
+        file_path = tk.filedialog.askopenfilename(filetypes=[
+        ("PNG Images", "*.png"),
+        ("JPEG Images", "*.jpeg"),
+        ("JPG Images", "*.jpg")
+        ])
+        #
+        if file_path:
+            # load image and display on canvas
+            self.image = Image.open(file_path)
+            self.photo = ImageTk.PhotoImage(self.image)
+            self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
+
+        # TODO: Fix to prevent interaction with turtle after loading image   
 
 
     def about(self):
