@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import math
 
 class TurtleSimulator:
-    def __init__(self, window, canvas, start_x=150, start_y=150, color="black"):
+    def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
         """
         Initialise the turtle with a starting position, colour, and state.
         canvas: tkinter canvas object where the turtle will draw.
@@ -18,16 +18,19 @@ class TurtleSimulator:
         """
         self.canvas = canvas
         self.window = window
-        self.x = start_x
-        self.y = start_y
+        self.x = canvas_width//2
+        self.y = canvas_height //2
         self.line_colour = "black"
         self.line_width = 1
         self.angle = 0 
         self.pen_down = True
-        turtleImage = Image.open("../Assets/turtle_white_background.png")
+        turtleImage = Image.open("../Assets/turtle_white_background.png") #TODO:  add file not found exception(FileNotFoundError:g)
+        # turtleImage = Image.open("../Assets/roamer_robot_small.png")
         self.turtle_image = ImageTk.PhotoImage(turtleImage)
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtleImage = turtleImage
+        self.actions = []
+        self.undone_actions = []    
 
     def _rotate_turtle_icon(self, angle):
         """
@@ -62,17 +65,104 @@ class TurtleSimulator:
         self.pen_down = True
 
 
+    def undo(self):
+        """
+        Undoes the last action.
+        """
+        try :
+            if len(self.actions) > 0:
+                action = self.actions.pop()
+                print(f"Undoing Action: {action}")
+                self.undone_actions.append(action)
+                if action['type'] == 'move':
+                    self.x, self.y = action['start']
+                    self._update_turtle_icon()
+                    # self.canvas.delete(self.canvas.find_withtag(tk.ALL)[-1])
+                    if 'line_id' in action:
+                        self.canvas.delete(action['line_id'])
+                    self.canvas.update()
+                elif action['type'] == 'pen':
+                    self.pen_down = not self.pen_down
+                elif action['type'] == 'color':
+                    self.line_colour = action['color']
+                elif action['type'] == 'width':
+                    self.line_width = action['width']
+                
+                if not self.canvas.find_withtag(self.turtle_icon):
+                    self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
+        except IndexError or KeyError or UnboundLocalError as e:
+            print(e)
+            print("No actions to undo.")
+
+    def redo(self):
+        """
+        Redoes the last action.
+        """
+        try:
+            if len(self.undone_actions) > 0:
+                action = self.undone_actions.pop()
+                print(f"Redoing Action: {action}")
+                self.actions.append(action)
+                if action['type'] == 'move':
+                    self.x, self.y = action['end']
+                    self._update_turtle_icon()
+                    if action['pen_down']:
+                        new_line_id = self.canvas.create_line(action['start'][0], action['start'][1], action['end'][0], action['end'][1], fill= action['color'], width=action['width'])
+                        action['line_id'] = new_line_id
+                    self.canvas.update()
+                elif action['type'] == 'pen':
+                    self.pen_down = not self.pen_down
+                elif action['type'] == 'color':
+                    self.line_colour = action['color']
+                elif action['type'] == 'width':
+                    self.line_width = action['width']
+        except IndexError or KeyError or UnboundLocalError as e:
+            print(e)
+            print("No actions to redo.")
+
     def _move(self, new_x, new_y):
         """
         Moves the turtle to a new position and draws.
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
+        start_pos = (self.x, self.y)
+
         if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
+
+
+    def mouse_move(self, new_x, new_y):
+        """
+        Moves the turtle to a new position based on mouse click.
+        new_x: New x-coordinate.
+        new_y: New y-coordinate.
+        """
+
+        start_pos = (self.x, self.y)
+        print(f"Before Move: Start ({self.x}, {self.y})")
+
+        if self.pen_down:
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+        print(f"Action Recorded: {action}")
+        self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
+
 
     def set_colour(self, colour):
         """
@@ -135,53 +225,73 @@ class TurtleSimulator:
         self._move(self.x + 10, self.y)
         self._update_turtle_icon()
 
-    def turn_left(self):
+    def turn_left(self, angle=90):
         self.angle = (self.angle + 90) % 360
         self.move_at_angle(10)
 
-    def turn_right(self):
+    def turn_right(self, angle=90):
         self.angle = (self.angle + 90) % 360
         self.move_at_angle(10)
 
+    
 
-    def button_display(self):
-        # colour dropdown menu
-        colour_button = tk.Menubutton(self.window, text="Colour")
-        colour_button.grid(column=3, row=3)
-        colour_menu = tk.Menu(colour_button, tearoff=0)
-        colour_button["menu"] = colour_menu
-        colour_menu.add_command(label="Black", command=lambda: self.set_colour("black"))
-        colour_menu.add_command(label="Red", command=lambda: self.set_colour("red"))
-        colour_menu.add_command(label="Blue", command=lambda: self.set_colour("blue"))
-        colour_menu.add_command(label="Green", command=lambda: self.set_colour("green"))
-        colour_menu.add_command(label="Yellow", command=lambda: self.set_colour("yellow"))
-        colour_menu.add_command(label="Orange", command=lambda: self.set_colour("orange"))
-        colour_menu.add_command(label="Purple", command=lambda: self.set_colour("purple"))
-        colour_menu.add_command(label="Pink", command=lambda: self.set_colour("pink"))
-        colour_menu.add_command(label="Brown", command=lambda: self.set_colour("brown"))
-        colour_menu.add_command(label="White", command=lambda: self.set_colour("white"))
-        colour_menu.add_command(label="Cyan", command=lambda: self.set_colour("cyan"))
-        colour_menu.add_command(label="Magenta", command=lambda: self.set_colour("magenta"))
-        colour_menu.add_command(label="Grey", command=lambda: self.set_colour("grey"))
+    def draw_circle(self, radius):
+        """
+        Draws a circle with a given radius.
+        radius: Radius of the circle.
+       """
+        circumference = 2 * math.pi * radius
+        n = 36 # number of segments
+        segment_length = circumference / n
+        angle = 360 / n
 
-        # width dropdown menu
-        width_button = tk.Menubutton(self.window, text="Width")
-        width_button.grid(column=4, row=3)
-        width_menu = tk.Menu(width_button, tearoff=0)
-        width_button["menu"] = width_menu
-        width_menu.add_command(label="1", command=lambda: self.set_width(1))
-        width_menu.add_command(label="2", command=lambda: self.set_width(2))
-        width_menu.add_command(label="3", command=lambda: self.set_width(3))
-        width_menu.add_command(label="4", command=lambda: self.set_width(4))
+        for _ in range(n):
+            self.move_at_angle(segment_length)
+            self.turn_right(angle)
 
-        # direction buttons
-        tk.Button(self.window, text="↑", command=self.move_up).grid(column=0, row=1)
-        tk.Button(self.window, text="↓", command=self.move_down).grid(column=1, row=1)
-        tk.Button(self.window, text="←", command=self.move_left).grid(column=2, row=1)
-        tk.Button(self.window, text="→", command=self.move_right).grid(column=3, row=1)
-        tk.Button(self.window, text="↰", command=self.turn_left).grid(column=1, row=2)
-        tk.Button(self.window, text="↱", command=self.turn_right).grid(column=2, row=2)
-        
-        # pen up/down buttons
-        tk.Button(self.window, text="Pen Up", command=self.set_pen_up).grid(column=1, row=3)
-        tk.Button(self.window, text="Pen Down", command=self.set_pen_down).grid(column=2, row=3)
+    def draw_rectangle(self, width, height):
+        """
+        Draws a rectangle with a given width and height.
+        width: Width of the rectangle.
+        height: Height of the rectangle.
+        """
+
+        for _ in range(2):
+            self._move(self.x + width, self.y)
+            self.turn_right(90)
+            self._move(self.x, self.y + height)
+            self.turn_right(90)
+
+    def draw_complex_shape(self, sides, length):
+        """
+        Draws a complex shape with a given number of sides and length.
+        sides: Number of sides of the shape.
+        length: Length of each side of the shape.
+        """
+
+        angle = 360 / sides
+        for _ in range(sides):
+            self._move(self.x + length, self.y)
+            self.turn_right(angle)
+    
+    def redraw(self, actions):
+        """
+        Redraws the turtle on the canvas.
+        """
+        self.canvas.delete("all")
+        self._update_turtle_icon()
+
+        for action in actions:
+            if action['type'] == 'move':
+            # Recreate the line on the canvas
+                self.canvas.create_line(action['start'][0], action['start'][1],
+                                    action['end'][0], action['end'][1],
+                                    fill=action['color'], width=action['width'])
+        # self._update_turtle_icon()
+        self.canvas.update()
+        # TODO:  fix this so that it doesn't create a new turtle icon every time
+        # Temporary fix for turtle icon not showing up
+        self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
+        self._update_turtle_icon()
+
+
