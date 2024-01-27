@@ -7,6 +7,7 @@ import tkinter.filedialog # for open file
 import json # for saving and loading files
 from PIL import ImageGrab # for saving canvas as image
 from PIL import Image, ImageTk # for loading image
+from tkinter import simpledialog # for drawing shapes
 
 class TurtleSimulatorAppUI:
     def __init__(self):
@@ -17,9 +18,55 @@ class TurtleSimulatorAppUI:
         self.canvas.grid(column=0, row=0, columnspan=6)
         self.turtle = TurtleSimulator(self.window, self.canvas, self.canvas_height, self.canvas_width)
         self.create_menu_bar(window = self.window)
-        self.turtle.button_display()
+        self.button_display()
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
 
+    
+    def button_display(self):
+        # colour dropdown menu
+        colour_button = tk.Menubutton(self.window, text="Colour")
+        colour_button.grid(column=3, row=3)
+        colour_menu = tk.Menu(colour_button, tearoff=0)
+        colour_button["menu"] = colour_menu
+        colour_menu.add_command(label="Black", command=lambda: self.turtle.set_colour("black"))
+        colour_menu.add_command(label="Red", command=lambda: self.turtle.set_colour("red"))
+        colour_menu.add_command(label="Blue", command=lambda: self.turtle.set_colour("blue"))
+        colour_menu.add_command(label="Green", command=lambda: self.turtle.set_colour("green"))
+        colour_menu.add_command(label="Yellow", command=lambda: self.turtle.set_colour("yellow"))
+        colour_menu.add_command(label="Orange", command=lambda: self.turtle.set_colour("orange"))
+        colour_menu.add_command(label="Purple", command=lambda: self.turtle.set_colour("purple"))
+        colour_menu.add_command(label="Pink", command=lambda: self.turtle.set_colour("pink"))
+        colour_menu.add_command(label="Brown", command=lambda: self.turtle.set_colour("brown"))
+        colour_menu.add_command(label="White", command=lambda: self.turtle.set_colour("white"))
+        colour_menu.add_command(label="Cyan", command=lambda: self.turtle.set_colour("cyan"))
+        colour_menu.add_command(label="Magenta", command=lambda: self.turtle.set_colour("magenta"))
+        colour_menu.add_command(label="Grey", command=lambda: self.turtle.set_colour("grey"))
+
+        # width dropdown menu
+        width_button = tk.Menubutton(self.window, text="Width")
+        width_button.grid(column=4, row=3)
+        width_menu = tk.Menu(width_button, tearoff=0)
+        width_button["menu"] = width_menu
+        width_menu.add_command(label="1", command=lambda: self.turtle.set_width(1))
+        width_menu.add_command(label="2", command=lambda: self.turtle.set_width(2))
+        width_menu.add_command(label="3", command=lambda: self.turtle.set_width(3))
+        width_menu.add_command(label="4", command=lambda: self.turtle.set_width(4))
+
+        # direction buttons
+        tk.Button(self.window, text="↑", command=self.turtle.move_up).grid(column=0, row=1)
+        tk.Button(self.window, text="↓", command=self.turtle.move_down).grid(column=1, row=1)
+        tk.Button(self.window, text="←", command=self.turtle.move_left).grid(column=2, row=1)
+        tk.Button(self.window, text="→", command=self.turtle.move_right).grid(column=3, row=1)
+        tk.Button(self.window, text="↰", command=self.turtle.turn_left).grid(column=1, row=2)
+        tk.Button(self.window, text="↱", command=self.turtle.turn_right).grid(column=2, row=2)
+        
+        # pen up/down buttons
+        tk.Button(self.window, text="Pen Up", command=self.turtle.set_pen_up).grid(column=1, row=3)
+        tk.Button(self.window, text="Pen Down", command=self.turtle.set_pen_down).grid(column=2, row=3)
+
+        # undo/redo buttons
+        tk.Button(self.window, text="Undo", command=self.turtle.undo).grid(column=4, row=1)
+        tk.Button(self.window, text="Redo", command=self.turtle.redo).grid(column=5, row=1)
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
@@ -44,6 +91,13 @@ class TurtleSimulatorAppUI:
         help_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="About", command= self.about) 
         menu_bar.add_cascade(label="Help", menu=help_menu)
+
+        # shapes menu
+        shapes_menu = tk.Menu(menu_bar, tearoff=0)
+        shapes_menu.add_command(label="Circle", command=self.draw_circle)
+        shapes_menu.add_command(label="Rectangle", command=self.draw_rectangle)
+        shapes_menu.add_command(label="Complex Shape", command=self.draw_complex_shape)
+        menu_bar.add_cascade(label="Shapes", menu=shapes_menu)
 
         window.config(menu=menu_bar)
 
@@ -90,7 +144,6 @@ class TurtleSimulatorAppUI:
                actions = json.load(file)
                self.turtle.redraw(actions)
 
-
     def save_drawing(self):
         file_path = tk.filedialog.asksaveasfilename(defaultextension=".json")
         print("File saved at:", file_path)
@@ -128,7 +181,6 @@ class TurtleSimulatorAppUI:
             tk.messagebox.showerror("Error", f"Error saving image as {file_type}: {e}")
             print("Error saving image:", e)
 
-
     def load_image(self):
         #  get file path from user
         file_path = tk.filedialog.askopenfilename(filetypes=[
@@ -143,8 +195,24 @@ class TurtleSimulatorAppUI:
             self.photo = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
 
-        # TODO: Fix to prevent interaction with turtle after loading image   
+        # TODO: Fix to prevent interaction with turtle after loading image
 
+    def draw_circle(self):
+        radius = simpledialog.askinteger("Input", "Enter radius:", parent=self.window)
+        if radius:
+            self.turtle.draw_circle(radius)
+
+    def draw_rectangle(self):
+        width = simpledialog.askinteger("Input", "Enter width:", parent=self.window)
+        height = simpledialog.askinteger("Input", "Enter height:", parent=self.window)
+        if width and height:
+            self.turtle.draw_rectangle(width, height)
+
+    def draw_complex_shape(self):
+        sides = simpledialog.askinteger("Input", "Enter number of sides:", parent=self.window)
+        length = simpledialog.askinteger("Input", "Enter length of each side:", parent=self.window)
+        if sides and length:
+            self.turtle.draw_complex_shape(sides, length)
 
     def about(self):
         tk.messagebox.showinfo("About", "Turtle Simulator\nVersion 1.0\nCreated by Abdulbaasit Sanusi")

@@ -225,14 +225,54 @@ class TurtleSimulator:
         self._move(self.x + 10, self.y)
         self._update_turtle_icon()
 
-    def turn_left(self):
+    def turn_left(self, angle=90):
         self.angle = (self.angle + 90) % 360
         self.move_at_angle(10)
 
-    def turn_right(self):
+    def turn_right(self, angle=90):
         self.angle = (self.angle + 90) % 360
         self.move_at_angle(10)
 
+    
+
+    def draw_circle(self, radius):
+        """
+        Draws a circle with a given radius.
+        radius: Radius of the circle.
+       """
+        circumference = 2 * math.pi * radius
+        n = 36 # number of segments
+        segment_length = circumference / n
+        angle = 360 / n
+
+        for _ in range(n):
+            self.move_at_angle(segment_length)
+            self.turn_right(angle)
+
+    def draw_rectangle(self, width, height):
+        """
+        Draws a rectangle with a given width and height.
+        width: Width of the rectangle.
+        height: Height of the rectangle.
+        """
+
+        for _ in range(2):
+            self._move(self.x + width, self.y)
+            self.turn_right(90)
+            self._move(self.x, self.y + height)
+            self.turn_right(90)
+
+    def draw_complex_shape(self, sides, length):
+        """
+        Draws a complex shape with a given number of sides and length.
+        sides: Number of sides of the shape.
+        length: Length of each side of the shape.
+        """
+
+        angle = 360 / sides
+        for _ in range(sides):
+            self._move(self.x + length, self.y)
+            self.turn_right(angle)
     
     def redraw(self, actions):
         """
@@ -249,51 +289,9 @@ class TurtleSimulator:
                                     fill=action['color'], width=action['width'])
         # self._update_turtle_icon()
         self.canvas.update()
+        # TODO:  fix this so that it doesn't create a new turtle icon every time
+        # Temporary fix for turtle icon not showing up
+        self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
+        self._update_turtle_icon()
 
 
-
-    def button_display(self):
-        # colour dropdown menu
-        colour_button = tk.Menubutton(self.window, text="Colour")
-        colour_button.grid(column=3, row=3)
-        colour_menu = tk.Menu(colour_button, tearoff=0)
-        colour_button["menu"] = colour_menu
-        colour_menu.add_command(label="Black", command=lambda: self.set_colour("black"))
-        colour_menu.add_command(label="Red", command=lambda: self.set_colour("red"))
-        colour_menu.add_command(label="Blue", command=lambda: self.set_colour("blue"))
-        colour_menu.add_command(label="Green", command=lambda: self.set_colour("green"))
-        colour_menu.add_command(label="Yellow", command=lambda: self.set_colour("yellow"))
-        colour_menu.add_command(label="Orange", command=lambda: self.set_colour("orange"))
-        colour_menu.add_command(label="Purple", command=lambda: self.set_colour("purple"))
-        colour_menu.add_command(label="Pink", command=lambda: self.set_colour("pink"))
-        colour_menu.add_command(label="Brown", command=lambda: self.set_colour("brown"))
-        colour_menu.add_command(label="White", command=lambda: self.set_colour("white"))
-        colour_menu.add_command(label="Cyan", command=lambda: self.set_colour("cyan"))
-        colour_menu.add_command(label="Magenta", command=lambda: self.set_colour("magenta"))
-        colour_menu.add_command(label="Grey", command=lambda: self.set_colour("grey"))
-
-        # width dropdown menu
-        width_button = tk.Menubutton(self.window, text="Width")
-        width_button.grid(column=4, row=3)
-        width_menu = tk.Menu(width_button, tearoff=0)
-        width_button["menu"] = width_menu
-        width_menu.add_command(label="1", command=lambda: self.set_width(1))
-        width_menu.add_command(label="2", command=lambda: self.set_width(2))
-        width_menu.add_command(label="3", command=lambda: self.set_width(3))
-        width_menu.add_command(label="4", command=lambda: self.set_width(4))
-
-        # direction buttons
-        tk.Button(self.window, text="↑", command=self.move_up).grid(column=0, row=1)
-        tk.Button(self.window, text="↓", command=self.move_down).grid(column=1, row=1)
-        tk.Button(self.window, text="←", command=self.move_left).grid(column=2, row=1)
-        tk.Button(self.window, text="→", command=self.move_right).grid(column=3, row=1)
-        tk.Button(self.window, text="↰", command=self.turn_left).grid(column=1, row=2)
-        tk.Button(self.window, text="↱", command=self.turn_right).grid(column=2, row=2)
-        
-        # pen up/down buttons
-        tk.Button(self.window, text="Pen Up", command=self.set_pen_up).grid(column=1, row=3)
-        tk.Button(self.window, text="Pen Down", command=self.set_pen_down).grid(column=2, row=3)
-
-        # undo/redo buttons
-        tk.Button(self.window, text="Undo", command=self.undo).grid(column=4, row=1)
-        tk.Button(self.window, text="Redo", command=self.redo).grid(column=5, row=1)
