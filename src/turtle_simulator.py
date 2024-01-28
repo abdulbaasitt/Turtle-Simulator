@@ -131,7 +131,122 @@ class Shapes:
             self._move(self.x + length, self.y)
             self.turn_right(angle)
 
-class TurtleSimulator(Shapes):
+
+class TurtleNavigation:
+    def __init__(self, canvas, x, y, angle = 0):
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.pen_down = True
+
+    def _move(self, new_x, new_y):
+        """
+        Moves the turtle to a new position and draws.
+        new_x: New x-coordinate.
+        new_y: New y-coordinate.
+        """
+        start_pos = (self.x, self.y)
+
+        if self.pen_down:
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+        self.current_shape_vertices.append((new_x, new_y))
+        self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
+
+    def move_at_angle(self, distance):
+        """
+        Moves the turtle at a given angle(for turning left and right).
+        distance: Distance to move.
+        """
+        radian_angle = math.radians(self.angle)
+        new_x = self.x + distance * math.cos(radian_angle)
+        new_y = self.y - distance * math.sin(radian_angle)
+        if self.pen_down:
+            self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
+        self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
+
+    def move_up(self):
+        """
+        Moves the turtle up.
+        """
+        self.angle = 270
+        self._move(self.x, self.y - 10)
+        self._update_turtle_icon()
+
+    def move_down(self):
+        """
+        Moves the turtle down.
+        """
+        self.angle = 90
+        self._move(self.x, self.y + 10)
+        self._update_turtle_icon()
+
+    def move_left(self):
+        """
+        Moves the turtle left.
+        """
+        self.angle = 180
+        self._move(self.x - 10, self.y)
+        self._update_turtle_icon()  
+
+    def move_right(self):
+        """
+        Moves the turtle right.
+        """
+        self.angle = 0
+        self._move(self.x + 10, self.y)
+        self._update_turtle_icon()
+
+    def mouse_move(self, new_x, new_y):
+        """
+        Moves the turtle to a new position based on mouse click.
+        new_x: New x-coordinate.
+        new_y: New y-coordinate.
+        """
+
+        start_pos = (self.x, self.y)
+        print(f"Before Move: Start ({self.x}, {self.y})")
+
+        if self.pen_down:
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action)
+        print(f"Action Recorded: {action}")
+        self.x, self.y = new_x, new_y
+        self._update_turtle_icon()
+        self.canvas.update()
+
+    # OLD TURN LEFT
+    # def turn_left(self, angle=90):
+    #     self.angle = (self.angle + 90) % 360
+    #     self.move_at_angle(10)
+    
+    def turn_left(self, angle=90):
+        self.angle = (self.angle + angle) % 360
+        self.move_at_angle(angle)
+
+    # OLD TURN RIGHT
+    # def turn_right(self, angle=90):
+    #     self.angle = (self.angle + 90) % 360
+    #     self.move_at_angle(10)
+
+    def turn_right(self, angle=90):
+        self.angle = (self.angle + angle) % 360
+        self.move_at_angle(angle)
+
+class TurtleSimulator(Shapes, TurtleNavigation):
     def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
         """
         Initialise the turtle with a starting position, colour, and state.
@@ -141,7 +256,8 @@ class TurtleSimulator(Shapes):
         start_y: Starting y-coordinate.
         color: Initial colour of the line.
         """
-        super().__init__(canvas)
+        TurtleNavigation.__init__(self, canvas, canvas_width//2, canvas_height//2)
+        Shapes.__init__(self, canvas)
         self.canvas = canvas
         self.window = window
         self.x = canvas_width//2
@@ -159,24 +275,25 @@ class TurtleSimulator(Shapes):
         self.actions = []
         self.undone_actions = []
 
-    # def _rotate_turtle_icon(self, angle):
-    #     """
-    #     Rotates the turtle icon.
-    #     angle: Angle to rotate the turtle icon.
-    #     """
-    #     center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
-    #     rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
-    #     self.turtle_image = ImageTk.PhotoImage(rotated_image)
-    #     self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
-    #     self.canvas.coords(self.turtle_icon, self.x, self.y)
+        #  TODO: Rotate turtle icon for Image. Set it up on Screen
+        # def _rotate_turtle_icon(self, angle):
+        #     """
+        #     Rotates the turtle icon.
+        #     angle: Angle to rotate the turtle icon.
+        #     """
+        #     center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
+        #     rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
+        #     self.turtle_image = ImageTk.PhotoImage(rotated_image)
+        #     self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
+        #     self.canvas.coords(self.turtle_icon, self.x, self.y)
 
-
-    # def _update_turtle_icon(self):
-    #     """
-    #     Updates the turtle icon on the canvas.
-    #     """
-    #     self._rotate_turtle_icon(-self.angle)
-    #     self.canvas.coords(self.turtle_icon,self.x, self.y)
+        #  TODO: Update turtle icon for Image. Set it up on Screen
+        # def _update_turtle_icon(self):
+        #     """
+        #     Updates the turtle icon on the canvas.
+        #     """
+        #     self._rotate_turtle_icon(-self.angle)
+        #     self.canvas.coords(self.turtle_icon,self.x, self.y)
 
     def _create_turtle_icon(self, x, y):
         """
@@ -233,8 +350,6 @@ class TurtleSimulator(Shapes):
                     rect_y2 = rect_y1 + size
                     self.canvas.coords(rect_id, rect_x1, rect_y1, rect_x2, rect_y2)
 
-
-
     def _rotate_turtle_icon(self, angle):
         """
         Rotates the turtle icon around its center by the given angle.
@@ -245,7 +360,6 @@ class TurtleSimulator(Shapes):
             self.canvas.delete(rect)
         self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
     
-
     def set_pen_up(self):
         """
         Lifts the pen up.
@@ -257,7 +371,6 @@ class TurtleSimulator(Shapes):
         Puts the pen down.
         """
         self.pen_down = True
-
 
     def undo(self):
         """
@@ -314,49 +427,6 @@ class TurtleSimulator(Shapes):
             print(e)
             print("No actions to redo.")
 
-    def _move(self, new_x, new_y):
-        """
-        Moves the turtle to a new position and draws.
-        new_x: New x-coordinate.
-        new_y: New y-coordinate.
-        """
-        start_pos = (self.x, self.y)
-
-        if self.pen_down:
-            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
-        else:
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
-        
-        self.actions.append(action)
-        self.current_shape_vertices.append((new_x, new_y))
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.canvas.update()
-
-    def mouse_move(self, new_x, new_y):
-        """
-        Moves the turtle to a new position based on mouse click.
-        new_x: New x-coordinate.
-        new_y: New y-coordinate.
-        """
-
-        start_pos = (self.x, self.y)
-        print(f"Before Move: Start ({self.x}, {self.y})")
-
-        if self.pen_down:
-            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
-        else:
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
-        
-        self.actions.append(action)
-        print(f"Action Recorded: {action}")
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.canvas.update()
-
-
     def set_colour(self, colour):
         """
         Sets the colour of the line.
@@ -370,71 +440,6 @@ class TurtleSimulator(Shapes):
         width: Width of the line.
         """
         self.line_width = width
-
-
-    def move_at_angle(self, distance):
-        """
-        Moves the turtle at a given angle(for turning left and right).
-        distance: Distance to move.
-        """
-        radian_angle = math.radians(self.angle)
-        new_x = self.x + distance * math.cos(radian_angle)
-        new_y = self.y - distance * math.sin(radian_angle)
-        if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.canvas.update()
-
-    def move_up(self):
-        """
-        Moves the turtle up.
-        """
-        self.angle = 270
-        self._move(self.x, self.y - 10)
-        self._update_turtle_icon()
-
-    def move_down(self):
-        """
-        Moves the turtle down.
-        """
-        self.angle = 90
-        self._move(self.x, self.y + 10)
-        self._update_turtle_icon()
-
-    def move_left(self):
-        """
-        Moves the turtle left.
-        """
-        self.angle = 180
-        self._move(self.x - 10, self.y)
-        self._update_turtle_icon()  
-
-    def move_right(self):
-        """
-        Moves the turtle right.
-        """
-        self.angle = 0
-        self._move(self.x + 10, self.y)
-        self._update_turtle_icon()
-
-    # OLD TURN LEFT
-    # def turn_left(self, angle=90):
-    #     self.angle = (self.angle + 90) % 360
-    #     self.move_at_angle(10)
-    
-    def turn_left(self, angle=90):
-        self.angle = (self.angle + angle) % 360
-        self.move_at_angle(angle)
-
-    # OLD TURN RIGHT
-    # def turn_right(self, angle=90):
-    #     self.angle = (self.angle + 90) % 360
-    #     self.move_at_angle(10)
-
-    def turn_right(self, angle=90):
-        self.angle = (self.angle + angle) % 360
-        self.move_at_angle(angle)
 
     def redraw(self, actions):
         """
