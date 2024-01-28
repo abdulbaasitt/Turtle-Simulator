@@ -169,7 +169,12 @@ class TurtleNavigation:
         new_x = self.x + distance * math.cos(radian_angle)
         new_y = self.y - distance * math.sin(radian_angle)
         if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
+            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
+            action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+        else:
+            action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+        
+        self.actions.append(action) 
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
@@ -458,14 +463,17 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.canvas.update()
         # TODO:  fix this so that it doesn't create a new turtle icon every time
         # Temporary fix for turtle icon not showing up
-        self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
+        # self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
         self._update_turtle_icon()
 
     def clear(self):
         """Delete all drawings and reset the turtle."""
         self.canvas.delete("all")
-        self._update_turtle_icon()
+        # self._update_turtle_icon()
         self.x = self.canvas.winfo_width() / 2
         self.y = self.canvas.winfo_height() / 2
         self.angle = 0
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
+        self._update_turtle_icon()
 
