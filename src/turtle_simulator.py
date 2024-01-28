@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
 import math
+import time
 
 class TurtleSimulator:
     def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
@@ -30,7 +31,9 @@ class TurtleSimulator:
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtleImage = turtleImage
         self.actions = []
-        self.undone_actions = []    
+        self.undone_actions = []
+        self.current_shape_vertices = []
+        self.last_shape_type = None    
 
     def _rotate_turtle_icon(self, angle):
         """
@@ -135,10 +138,83 @@ class TurtleSimulator:
             action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
         
         self.actions.append(action)
-
+        self.current_shape_vertices.append((new_x, new_y))
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
+
+    def start_new_shape(self):
+        """
+        Starts a new shape.
+        """
+        self.current_shape_vertices = []
+        self.last_shape_type = None
+    
+    def fill_circle(self, fill_color):
+        """
+        Fills the last circle drawn.
+        """
+        if self.last_shape_type != 'circle':
+            print("No circle to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # Calculate the bounding box
+        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
+        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
+        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
+        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
+
+        # Create an overlay shape with fill color
+        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+    
+    def fill_rectangle(self, fill_color):
+        """
+        Fills the last rectangle drawn.
+        """
+        if self.last_shape_type != 'rectangle':
+            print("No rectangle to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # Calculate the bounding box
+        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
+        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
+        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
+        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
+
+        # Create an overlay shape with fill color
+        self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+
+    def fill_last_shape(self, fill_color): 
+        """
+        Fills the last shape drawn.
+        """
+
+        print(f"Last Shape Type: {self.last_shape_type}")   
+        if self.last_shape_type == 'circle' and len(self.current_shape_vertices) > 0:
+            self.fill_circle(fill_color)
+
+        elif self.last_shape_type == 'rectangle' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_rectangle(fill_color)
+        
+        elif self.last_shape_type == 'complex' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_complex_shape(fill_color)
+
+        elif self.last_shape_type == 'polygon' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_polygon(fill_color)
+        else:
+            print("No shape to fill")
+            return
 
 
     def mouse_move(self, new_x, new_y):
@@ -188,9 +264,10 @@ class TurtleSimulator:
         new_x = self.x + distance * math.cos(radian_angle)
         new_y = self.y - distance * math.sin(radian_angle)
         if self.pen_down:
-            self.canvas.create_line(self.x, self.y, new_x, new_y, fill="black", width=1)
+            self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
+        self.canvas.update()
 
 
     def move_up(self):
@@ -225,13 +302,23 @@ class TurtleSimulator:
         self._move(self.x + 10, self.y)
         self._update_turtle_icon()
 
+    # OLD TURN LEFT
+    # def turn_left(self, angle=90):
+    #     self.angle = (self.angle + 90) % 360
+    #     self.move_at_angle(10)
+    
     def turn_left(self, angle=90):
-        self.angle = (self.angle + 90) % 360
-        self.move_at_angle(10)
+        self.angle = (self.angle + angle) % 360
+        self.move_at_angle(angle)
+
+    # OLD TURN RIGHT
+    # def turn_right(self, angle=90):
+    #     self.angle = (self.angle + 90) % 360
+    #     self.move_at_angle(10)
 
     def turn_right(self, angle=90):
-        self.angle = (self.angle + 90) % 360
-        self.move_at_angle(10)
+        self.angle = (self.angle + angle) % 360
+        self.move_at_angle(angle)
 
     
 
@@ -241,13 +328,19 @@ class TurtleSimulator:
         radius: Radius of the circle.
        """
         circumference = 2 * math.pi * radius
-        n = 36 # number of segments
+        n = 360 # number of segments
         segment_length = circumference / n
         angle = 360 / n
+        self.last_shape_type = 'circle'
+
+        delay_time = 0.01
 
         for _ in range(n):
             self.move_at_angle(segment_length)
             self.turn_right(angle)
+            self.current_shape_vertices.append((self.x, self.y))
+            self.canvas.update()
+            time.sleep(delay_time)
 
     def draw_rectangle(self, width, height):
         """
@@ -293,5 +386,15 @@ class TurtleSimulator:
         # Temporary fix for turtle icon not showing up
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
         self._update_turtle_icon()
+
+    
+    def clear(self):
+        """Delete all drawings and reset the turtle."""
+        self.canvas.delete("all")
+        self._update_turtle_icon()
+        self.x = self.canvas.winfo_width() / 2
+        self.y = self.canvas.winfo_height() / 2
+        self.angle = 0
+
 
 
