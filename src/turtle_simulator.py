@@ -150,33 +150,101 @@ class TurtleSimulator(Shapes):
         self.line_width = 1
         self.angle = 0 
         self.pen_down = True
-        turtleImage = Image.open("../Assets/turtle_white_background.png") #TODO:  add file not found exception(FileNotFoundError:g)
-        # turtleImage = Image.open("../Assets/roamer_robot_small.png")
-        self.turtle_image = ImageTk.PhotoImage(turtleImage)
-        self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
-        self.turtleImage = turtleImage
+        # turtleImage = Image.open("../Assets/turtle_white_background.png") #TODO:  add file not found exception(FileNotFoundError:g)
+        # # turtleImage = Image.open("../Assets/roamer_robot_small.png")
+        # self.turtle_image = ImageTk.PhotoImage(turtleImage)
+        # self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
+        # self.turtleImage = turtleImage
         self.actions = []
         self.undone_actions = []
 
-    def _rotate_turtle_icon(self, angle):
-        """
-        Rotates the turtle icon.
-        angle: Angle to rotate the turtle icon.
-        """
-        center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
-        rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
-        self.turtle_image = ImageTk.PhotoImage(rotated_image)
-        self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
-        self.canvas.coords(self.turtle_icon, self.x, self.y)
+    # def _rotate_turtle_icon(self, angle):
+    #     """
+    #     Rotates the turtle icon.
+    #     angle: Angle to rotate the turtle icon.
+    #     """
+    #     center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
+    #     rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
+    #     self.turtle_image = ImageTk.PhotoImage(rotated_image)
+    #     self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
+    #     self.canvas.coords(self.turtle_icon, self.x, self.y)
 
 
+    # def _update_turtle_icon(self):
+    #     """
+    #     Updates the turtle icon on the canvas.
+    #     """
+    #     self._rotate_turtle_icon(-self.angle)
+    #     self.canvas.coords(self.turtle_icon,self.x, self.y)
+
+    def _create_turtle_icon(self, x, y):
+        """
+        Creates the turtle icon on the canvas using the turtle_matrix.
+        x, y: Center coordinates of the turtle.
+        """
+        self.turtle_matrix = [
+            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],  
+            [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0],  
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  
+            [1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],  
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  
+            [1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],  
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  
+            [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0],  
+            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1]   
+            ]
+
+        size = 2  # Size of each individual square
+        half_size = len(self.turtle_matrix[0]) // 2 * size
+
+        turtle_icon = []
+
+        for i, row in enumerate(self.turtle_matrix):
+            for j, val in enumerate(row):
+                if val == 1:
+                    rect_x1 = x - half_size + j * size
+                    rect_y1 = y - half_size + i * size
+                    rect_x2 = rect_x1 + size
+                    rect_y2 = rect_y1 + size
+                    rect = self.canvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill="black") # TODO:  change to turtle colour to be slected from menu  
+                    turtle_icon.append(rect)
+
+        return turtle_icon
+    
     def _update_turtle_icon(self):
         """
-        Updates the turtle icon on the canvas.
+        Updates the turtle icon on the canvas to a new position.
         """
-        self._rotate_turtle_icon(-self.angle)
-        self.canvas.coords(self.turtle_icon,self.x, self.y)
+        size = 2  # Size of each individual square
+        half_size = len(self.turtle_matrix[0]) // 2 * size
+        counter = 0
 
+    
+        for i, row in enumerate(self.turtle_matrix):
+            for j, val in enumerate(row):
+                if val == 1:
+                    rect_id = self.turtle_icon_parts[counter]
+                    counter += 1
+
+                    rect_x1 = self.x - half_size + j * size
+                    rect_y1 = self.y - half_size + i * size
+                    rect_x2 = rect_x1 + size
+                    rect_y2 = rect_y1 + size
+                    self.canvas.coords(rect_id, rect_x1, rect_y1, rect_x2, rect_y2)
+
+
+
+    def _rotate_turtle_icon(self, angle):
+        """
+        Rotates the turtle icon around its center by the given angle.
+        """
+        self.angle = (self.angle + angle) % 360
+        # Delete the current turtle icon
+        for rect in self.turtle_icon_parts:
+            self.canvas.delete(rect)
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
+    
 
     def set_pen_up(self):
         """
@@ -318,7 +386,6 @@ class TurtleSimulator(Shapes):
         self._update_turtle_icon()
         self.canvas.update()
 
-
     def move_up(self):
         """
         Moves the turtle up.
@@ -382,7 +449,7 @@ class TurtleSimulator(Shapes):
                 self.canvas.create_line(action['start'][0], action['start'][1],
                                     action['end'][0], action['end'][1],
                                     fill=action['color'], width=action['width'])
-        # self._update_turtle_icon()
+        self._update_turtle_icon()
         self.canvas.update()
         # TODO:  fix this so that it doesn't create a new turtle icon every time
         # Temporary fix for turtle icon not showing up
