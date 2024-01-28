@@ -7,7 +7,131 @@ from PIL import Image, ImageTk
 import math
 import time
 
-class TurtleSimulator:
+class Shapes:
+    def __init__ (self, canvas):
+        self.canvas = canvas
+        self.current_shape_vertices = []
+        self.last_shape_type = None
+
+    def start_new_shape(self):
+        """
+        Starts a new shape.
+        """
+        self.current_shape_vertices = []
+        self.last_shape_type = None
+    
+    def fill_circle(self, fill_color):
+        """
+        Fills the last circle drawn.
+        """
+        if self.last_shape_type != 'circle':
+            print("No circle to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # Calculate the bounding box
+        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
+        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
+        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
+        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
+
+        # Create an overlay shape with fill color
+        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+
+    def fill_rectangle(self, fill_color):
+        """
+        Fills the last rectangle drawn.
+        """
+        if self.last_shape_type != 'rectangle':
+            print("No rectangle to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # Calculate the bounding box
+        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
+        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
+        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
+        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
+
+        # Create an overlay shape with fill color
+        self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+
+    def fill_last_shape(self, fill_color):
+        """
+        Fills the last shape drawn.
+        """
+
+        print(f"Last Shape Type: {self.last_shape_type}")   
+        if self.last_shape_type == 'circle' and len(self.current_shape_vertices) > 0:
+            self.fill_circle(fill_color)
+
+        elif self.last_shape_type == 'rectangle' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_rectangle(fill_color)
+        
+        elif self.last_shape_type == 'complex' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_complex_shape(fill_color)
+
+        elif self.last_shape_type == 'polygon' and len(self.current_shape_vertices) > 0:
+            pass
+            # self.fill_polygon(fill_color)
+        else:
+            print("No shape to fill")
+            return
+        
+    def draw_circle(self, radius):  
+        """
+        Draws a circle with a given radius.
+        radius: Radius of the circle.
+       """
+        circumference = 2 * math.pi * radius
+        n = 100
+        segment_length = circumference / n
+        angle = 360 / n
+        self.last_shape_type = 'circle'
+
+        delay_time = 0.01
+
+        for _ in range(n):
+            self.move_at_angle(segment_length)
+            self.turn_right(angle)
+            self.current_shape_vertices.append((self.x, self.y))
+            self.canvas.update()
+            time.sleep(delay_time)
+
+    def draw_rectangle(self, width, height):
+        """
+        Draws a rectangle with a given width and height.
+        width: Width of the rectangle.
+        height: Height of the rectangle.
+        """
+
+        for _ in range(2):
+            self._move(self.x + width, self.y)
+            self.turn_right(90)
+            self._move(self.x, self.y + height)
+            self.turn_right(90)
+
+    def draw_complex_shape(self, sides, length):
+        """
+        Draws a complex shape with a given number of sides and length.
+        sides: Number of sides of the shape.
+        length: Length of each side of the shape.
+        """
+
+        angle = 360 / sides
+        for _ in range(sides):
+            self._move(self.x + length, self.y)
+            self.turn_right(angle)
+
+class TurtleSimulator(Shapes):
     def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
         """
         Initialise the turtle with a starting position, colour, and state.
@@ -17,6 +141,7 @@ class TurtleSimulator:
         start_y: Starting y-coordinate.
         color: Initial colour of the line.
         """
+        super().__init__(canvas)
         self.canvas = canvas
         self.window = window
         self.x = canvas_width//2
@@ -32,8 +157,6 @@ class TurtleSimulator:
         self.turtleImage = turtleImage
         self.actions = []
         self.undone_actions = []
-        self.current_shape_vertices = []
-        self.last_shape_type = None    
 
     def _rotate_turtle_icon(self, angle):
         """
@@ -143,80 +266,6 @@ class TurtleSimulator:
         self._update_turtle_icon()
         self.canvas.update()
 
-    def start_new_shape(self):
-        """
-        Starts a new shape.
-        """
-        self.current_shape_vertices = []
-        self.last_shape_type = None
-    
-    def fill_circle(self, fill_color):
-        """
-        Fills the last circle drawn.
-        """
-        if self.last_shape_type != 'circle':
-            print("No circle to fill")
-            return
-
-        if not self.current_shape_vertices:
-            print("No shape to fill")
-            return
-
-        # Calculate the bounding box
-        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
-        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
-        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
-        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
-
-        # Create an overlay shape with fill color
-        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
-    
-    def fill_rectangle(self, fill_color):
-        """
-        Fills the last rectangle drawn.
-        """
-        if self.last_shape_type != 'rectangle':
-            print("No rectangle to fill")
-            return
-
-        if not self.current_shape_vertices:
-            print("No shape to fill")
-            return
-
-        # Calculate the bounding box
-        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
-        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
-        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
-        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
-
-        # Create an overlay shape with fill color
-        self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
-
-    def fill_last_shape(self, fill_color): 
-        """
-        Fills the last shape drawn.
-        """
-
-        print(f"Last Shape Type: {self.last_shape_type}")   
-        if self.last_shape_type == 'circle' and len(self.current_shape_vertices) > 0:
-            self.fill_circle(fill_color)
-
-        elif self.last_shape_type == 'rectangle' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_rectangle(fill_color)
-        
-        elif self.last_shape_type == 'complex' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_complex_shape(fill_color)
-
-        elif self.last_shape_type == 'polygon' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_polygon(fill_color)
-        else:
-            print("No shape to fill")
-            return
-
-
     def mouse_move(self, new_x, new_y):
         """
         Moves the turtle to a new position based on mouse click.
@@ -320,53 +369,6 @@ class TurtleSimulator:
         self.angle = (self.angle + angle) % 360
         self.move_at_angle(angle)
 
-    
-
-    def draw_circle(self, radius):
-        """
-        Draws a circle with a given radius.
-        radius: Radius of the circle.
-       """
-        circumference = 2 * math.pi * radius
-        n = 360 # number of segments
-        segment_length = circumference / n
-        angle = 360 / n
-        self.last_shape_type = 'circle'
-
-        delay_time = 0.01
-
-        for _ in range(n):
-            self.move_at_angle(segment_length)
-            self.turn_right(angle)
-            self.current_shape_vertices.append((self.x, self.y))
-            self.canvas.update()
-            time.sleep(delay_time)
-
-    def draw_rectangle(self, width, height):
-        """
-        Draws a rectangle with a given width and height.
-        width: Width of the rectangle.
-        height: Height of the rectangle.
-        """
-
-        for _ in range(2):
-            self._move(self.x + width, self.y)
-            self.turn_right(90)
-            self._move(self.x, self.y + height)
-            self.turn_right(90)
-
-    def draw_complex_shape(self, sides, length):
-        """
-        Draws a complex shape with a given number of sides and length.
-        sides: Number of sides of the shape.
-        length: Length of each side of the shape.
-        """
-
-        angle = 360 / sides
-        for _ in range(sides):
-            self._move(self.x + length, self.y)
-            self.turn_right(angle)
-    
     def redraw(self, actions):
         """
         Redraws the turtle on the canvas.
@@ -387,7 +389,6 @@ class TurtleSimulator:
         self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image) 
         self._update_turtle_icon()
 
-    
     def clear(self):
         """Delete all drawings and reset the turtle."""
         self.canvas.delete("all")
@@ -395,6 +396,4 @@ class TurtleSimulator:
         self.x = self.canvas.winfo_width() / 2
         self.y = self.canvas.winfo_height() / 2
         self.angle = 0
-
-
 
