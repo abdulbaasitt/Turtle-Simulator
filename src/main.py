@@ -11,21 +11,50 @@ from tkinter import simpledialog # for drawing shapes
 
 class TurtleSimulatorAppUI:
     def __init__(self):
+
+        # Window setup
         self.window = tk.Tk()
+        self.window.title("Turtle Simulator")
+
+        self.window.grid_rowconfigure(0, weight=3)
+        for i in range(1, 6):
+            # makes row expandable
+            self.window.grid_rowconfigure(0, weight=1) # make canvas expand to fill window
+            # makes column expandable
+            self.window.grid_columnconfigure(0, weight=1)   # make canvas expand to fill window 
+ 
+        # Canvas setup
         self.canvas_height = 600
         self.canvas_width = 600
         self.canvas = tk.Canvas(self.window, bg="white", height=self.canvas_height, width=self.canvas_width)
-        self.canvas.grid(column=0, row=0, columnspan=6)
+        self.canvas.grid(column=0, row=0, columnspan=6, sticky="nsew")
+
         self.turtle = TurtleSimulator(self.window, self.canvas, self.canvas_height, self.canvas_width)
+        # Prompt for initial line colour and width
+        initial_colour = simpledialog.askstring("Initial Colour", "Enter initial line colour:",
+                                                parent=self.window)
+        initial_width = simpledialog.askinteger("Initial Width", "Enter initial line width:",
+                                                parent=self.window)
+        # Set initial colour and width if user entered them
+        if initial_colour and initial_colour.lower() in ['black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'white', 'cyan', 'magenta', 'grey']:
+            self.turtle.set_colour(initial_colour)
+        else:
+            print("Invalid colour entered. Defaulting to black.")
+            self.turtle.set_colour("black")
+        
+        if initial_width:
+            self.turtle.set_width(initial_width)
+
         self.create_menu_bar(window = self.window)
         self.button_display()
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
+        
 
-    
+
     def button_display(self):
         # colour dropdown menu
         colour_button = tk.Menubutton(self.window, text="Colour")
-        colour_button.grid(column=3, row=3)
+        colour_button.grid(column=3, row=3, sticky="nsew")
         colour_menu = tk.Menu(colour_button, tearoff=0)
         colour_button["menu"] = colour_menu
         colour_menu.add_command(label="Black", command=lambda: self.turtle.set_colour("black"))
@@ -44,29 +73,34 @@ class TurtleSimulatorAppUI:
 
         # width dropdown menu
         width_button = tk.Menubutton(self.window, text="Width")
-        width_button.grid(column=4, row=3)
+        width_button.grid(column=4, row=3, sticky="nsew")
         width_menu = tk.Menu(width_button, tearoff=0)
         width_button["menu"] = width_menu
         width_menu.add_command(label="1", command=lambda: self.turtle.set_width(1))
         width_menu.add_command(label="2", command=lambda: self.turtle.set_width(2))
         width_menu.add_command(label="3", command=lambda: self.turtle.set_width(3))
         width_menu.add_command(label="4", command=lambda: self.turtle.set_width(4))
+        width_menu.add_command(label="5", command=lambda: self.turtle.set_width(5))
+        width_menu.add_command(label="6", command=lambda: self.turtle.set_width(6))
+        width_menu.add_command(label="7", command=lambda: self.turtle.set_width(7))
 
         # direction buttons
-        tk.Button(self.window, text="↑", command=self.turtle.move_up).grid(column=0, row=1)
-        tk.Button(self.window, text="↓", command=self.turtle.move_down).grid(column=1, row=1)
-        tk.Button(self.window, text="←", command=self.turtle.move_left).grid(column=2, row=1)
-        tk.Button(self.window, text="→", command=self.turtle.move_right).grid(column=3, row=1)
-        tk.Button(self.window, text="↰", command=self.turtle.turn_left).grid(column=1, row=2)
-        tk.Button(self.window, text="↱", command=self.turtle.turn_right).grid(column=2, row=2)
+        tk.Button(self.window, text="↑", command=self.turtle.move_up).grid(column=1, row=1, sticky="nsew")
+        tk.Button(self.window, text="↓", command=self.turtle.move_down).grid(column=1, row=2, sticky="nsew")
+        tk.Button(self.window, text="←", command=self.turtle.move_left).grid(column=0, row=2, sticky="nsew")
+        tk.Button(self.window, text="→", command=self.turtle.move_right).grid(column=2, row=2, sticky="nsew")
+        tk.Button(self.window, text="↰", command=self.turtle.turn_left).grid(column=0, row=1, sticky="nsew")
+        tk.Button(self.window, text="↱", command=self.turtle.turn_right).grid(column=2, row=1, sticky="nsew")
         
         # pen up/down buttons
-        tk.Button(self.window, text="Pen Up", command=self.turtle.set_pen_up).grid(column=1, row=3)
-        tk.Button(self.window, text="Pen Down", command=self.turtle.set_pen_down).grid(column=2, row=3)
+        tk.Button(self.window, text="Pen Up", command=self.turtle.set_pen_up).grid(column=1, row=3, sticky="nsew")
+        tk.Button(self.window, text="Pen Down", command=self.turtle.set_pen_down).grid(column=2, row=3, sticky="nsew")
 
         # undo/redo buttons
-        tk.Button(self.window, text="Undo", command=self.turtle.undo).grid(column=4, row=1)
-        tk.Button(self.window, text="Redo", command=self.turtle.redo).grid(column=5, row=1)
+        tk.Button(self.window, text="Undo", command=self.turtle.undo).grid(column=4, row=1, sticky="nsew")
+        tk.Button(self.window, text="Redo", command=self.turtle.redo).grid(column=5, row=1, sticky="nsew")
+
+        tk.Button(self.window, text="Clear", command=self.turtle.clear).grid(column=5, row=2, sticky="nsew")
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
@@ -100,7 +134,6 @@ class TurtleSimulatorAppUI:
         menu_bar.add_cascade(label="Shapes", menu=shapes_menu)
 
         window.config(menu=menu_bar)
-
 
     def keyboard_and_mouse_events(self, window, canvas, turtle):
         # Bind keyboard events
@@ -143,6 +176,7 @@ class TurtleSimulatorAppUI:
             with open(file_path, 'r') as file:
                actions = json.load(file)
                self.turtle.redraw(actions)
+
 
     def save_drawing(self):
         file_path = tk.filedialog.asksaveasfilename(defaultextension=".json")
@@ -194,6 +228,8 @@ class TurtleSimulatorAppUI:
             self.image = Image.open(file_path)
             self.photo = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
+            self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
+            self.turtle._update_turtle_icon()
 
         # TODO: Fix to prevent interaction with turtle after loading image
 
@@ -218,6 +254,11 @@ class TurtleSimulatorAppUI:
         tk.messagebox.showinfo("About", "Turtle Simulator\nVersion 1.0\nCreated by Abdulbaasit Sanusi")
 
     def run(self):
+        self.turtle.start_new_shape()
+        self.turtle.draw_circle(50)
+        # self.turtle.fill_last_shape("red")
+        # self.window.resizable(False, False) # prevent resizing of window (setting window to fixed size for now)
+        self.window.title("Turtle Simulator")
         self.window.mainloop()
 
 
