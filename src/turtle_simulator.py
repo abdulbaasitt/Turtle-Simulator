@@ -25,30 +25,8 @@ class Shapes:
         """
         Starts a new shape.
         """
-        self.current_shape_vertices = []
-        self.last_shape_type = None
+        self.current_shape_vertices.clear()
     
-    def fill_circle(self, fill_color):
-        """
-        Fills the last circle drawn.
-        """
-        if self.last_shape_type != 'circle':
-            print("No circle to fill")
-            return
-
-        if not self.current_shape_vertices:
-            print("No shape to fill")
-            return
-
-        # Calculate the bounding box
-        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
-        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
-        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
-        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
-
-        # Create an overlay shape with fill color
-        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
-
     def fill_rectangle_square(self, fill_color):
         """
         Fills the last rectangle drawn.
@@ -77,7 +55,7 @@ class Shapes:
         """
         Fills the last polygon drawn.
         """
-        if self.last_shape_type not in ['hexagon', 'pentagon', 'polygon']:
+        if self.last_shape_type not in ['triangle','pentagon', 'hexagon','heptagon', 'octagon', 'nonagon', 'polygon'] :
             print("No polygon to fill")
             return
 
@@ -87,7 +65,28 @@ class Shapes:
 
         # creates an overlay shape with fill color
         self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
-    
+
+    def fill_circle(self, fill_color):
+        """
+        Fills the last circle drawn.
+        """
+        if self.last_shape_type != 'circle':
+            print("No circle to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # Calculate the bounding box
+        min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
+        min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
+        max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
+        max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
+
+        # Create an overlay shape with fill color
+        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+
     def fill_last_shape(self, fill_color):
         """
         Fills the last shape drawn.
@@ -101,32 +100,12 @@ class Shapes:
             # pass
             self.fill_rectangle_square(fill_color)
         
-        elif self.last_shape_type == 'complex' and len(self.current_shape_vertices) > 0:
-            self.fill_complex_shape(fill_color)
-
-        elif (self.last_shape_type == 'pentagon' or self.last_shape_type == "hexagon" )and len(self.current_shape_vertices) > 0:
+        elif (self.last_shape_type in ['triangle','pentagon', 'hexagon','heptagon', 'octagon', 'nonagon', 'polygon'] )and len(self.current_shape_vertices) > 0:
             self.fill_polygon(fill_color)
         else:
             print("No shape to fill")
             return
         
-    def draw_circle(self, radius):  
-        """
-        Draws a circle with a given radius.
-        radius: Radius of the circle.
-       """
-        circumference = 2 * math.pi * radius
-        n = 100
-        segment_length = circumference / n
-        angle = 360 / n
-        self.last_shape_type = 'circle'
-
-        for _ in range(n):
-            self.move_at_angle(segment_length)
-            self.turn_right(angle)
-            self.current_shape_vertices.append((self.x, self.y))
-            self.animation()
-
     def draw_rectangle_square(self, width, height):
         """
         Draws a rectangle with a given width and height.
@@ -139,7 +118,7 @@ class Shapes:
         else:
             self.last_shape_type = 'rectangle'
 
-        self.current_shape_vertices.clear()
+        self.start_new_shape()
         self.current_shape_vertices.append((self.x, self.y))
 
         for _ in range(2):
@@ -156,17 +135,25 @@ class Shapes:
             self.current_shape_vertices.append((self.x, self.y))
             print(f"Current Shape Vertices: {self.current_shape_vertices}")
     
-
-    def draw_polygon(self, num_sides, side_length = 15):
+    def draw_polygon(self, num_sides, side_length = 3):
         """
         Draws a polygon with a given side length.
         side_length: Length of each side of the polygon.
         """
+        self.start_new_shape()
 
-        if num_sides == 5:
+        if num_sides == 3:
+            self.last_shape_type = 'triangle'
+        elif num_sides == 5:
             self.last_shape_type = 'pentagon'
         elif num_sides == 6:
             self.last_shape_type = 'hexagon'
+        elif num_sides == 7:
+            self.last_shape_type = 'heptagon'
+        elif num_sides == 8:
+            self.last_shape_type = 'octagon'
+        elif num_sides == 9:
+            self.last_shape_type = 'nonagon'
         else:
             self.last_shape_type = 'polygon'
 
@@ -178,6 +165,24 @@ class Shapes:
             self.turn_right(angle)
             self.animation()
 
+    def draw_circle(self, radius):  
+        """
+        Draws a circle with a given radius.
+        radius: Radius of the circle.
+       """
+        circumference = 2 * math.pi * radius
+        n = 18
+        segment_length = circumference / n
+        angle = 360 / n
+        self.last_shape_type = 'circle'
+
+        self.start_new_shape()
+
+        for _ in range(n):
+            self.move_at_angle(segment_length)
+            self.turn_right(angle)
+            self.current_shape_vertices.append((self.x, self.y))
+            self.animation()
 
 class TurtleNavigation:
     def __init__(self, canvas, x, y, angle = 0):
@@ -206,6 +211,21 @@ class TurtleNavigation:
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
         self.canvas.update()
+    
+    # TODO: temporary function to move the turtle without drawing(almost same as _move)
+    def move_to(self, new_x, new_y):
+        """
+        Moves the turtle to the specified coordinates without drawing.
+        new_x: New x-coordinate to move to.
+        new_y: New y-coordinate to move to.
+        """
+        # Update the turtle's position
+        self.set_pen_up()
+        self.x = new_x
+        self.y = new_y
+        
+        # Update the turtle's icon to the new position without drawing a line
+        self._update_turtle_icon()
 
     def move_at_angle(self, distance):
         """
@@ -298,6 +318,20 @@ class TurtleNavigation:
     def turn_right(self, angle=90):
         self.angle = (self.angle + angle) % 360
         self.move_at_angle(angle)
+
+    def move_to_origin(self):
+        """
+        Moves the turtle to the center of the canvas.
+        """
+        for part in self.turtle_icon_parts:
+            self.canvas.delete(part)
+
+        self.x = self.canvas.winfo_width() / 2
+        self.y = self.canvas.winfo_height() / 2
+        self.angle = 0
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)        
+        self._update_turtle_icon()
+        self.set_pen_down()
 
 class TurtleSimulator(Shapes, TurtleNavigation):
     def __init__(self, window, canvas, canvas_width, canvas_height, color="black"):
@@ -424,6 +458,13 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         Puts the pen down.
         """
         self.pen_down = True
+    
+    def set_angle(self, angle):
+        """
+        Sets the angle of the turtle.
+        angle: Angle to set the turtle to.
+        """
+        self.angle = angle
 
     def undo(self):
         """
@@ -518,10 +559,9 @@ class TurtleSimulator(Shapes, TurtleNavigation):
     def clear(self):
         """Delete all drawings and reset the turtle."""
         self.canvas.delete("all")
-        # self._update_turtle_icon()
+        self.actions.clear()
         self.x = self.canvas.winfo_width() / 2
         self.y = self.canvas.winfo_height() / 2
         self.angle = 0
         self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
         self._update_turtle_icon()
-

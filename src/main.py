@@ -16,6 +16,11 @@ class TurtleSimulatorAppUI:
         self.window = tk.Tk()
         self.window.title("Turtle Simulator")
 
+        # Set window size
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        self.window.geometry(f"{screen_width}x{screen_height}+0+0")
+
         self.window.grid_rowconfigure(0, weight=3)
         for i in range(1, 6):
             # makes row expandable
@@ -24,8 +29,8 @@ class TurtleSimulatorAppUI:
             self.window.grid_columnconfigure(0, weight=1)   # make canvas expand to fill window 
  
         # Canvas setup
-        self.canvas_height = 600
-        self.canvas_width = 600
+        self.canvas_height = self.window.winfo_height()
+        self.canvas_width = self.window.winfo_width()
         self.canvas = tk.Canvas(self.window, bg="white", height=self.canvas_height, width=self.canvas_width)
         self.canvas.grid(column=0, row=0, columnspan=6, sticky="nsew")
 
@@ -49,7 +54,6 @@ class TurtleSimulatorAppUI:
         self.button_display()
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
         
-
 
     def button_display(self):
         # colour dropdown menu
@@ -101,6 +105,8 @@ class TurtleSimulatorAppUI:
         tk.Button(self.window, text="Redo", command=self.turtle.redo).grid(column=5, row=1, sticky="nsew")
 
         tk.Button(self.window, text="Clear", command=self.turtle.clear).grid(column=5, row=2, sticky="nsew")
+        tk.Button(self.window, text="Demo", command=self.demo).grid(column=5, row=3, sticky="nsew")
+        tk.Button(self.window, text="Origin", command=self.turtle.move_to_origin).grid(column=4, row=2, sticky="nsew")
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
@@ -177,7 +183,6 @@ class TurtleSimulatorAppUI:
                actions = json.load(file)
                self.turtle.redraw(actions)
 
-
     def save_drawing(self):
         file_path = tk.filedialog.asksaveasfilename(defaultextension=".json")
         print("File saved at:", file_path)
@@ -242,7 +247,7 @@ class TurtleSimulatorAppUI:
         width = simpledialog.askinteger("Input", "Enter width:", parent=self.window)
         height = simpledialog.askinteger("Input", "Enter height:", parent=self.window)
         if width and height:
-            self.turtle.draw_rectangle(width, height)
+            self.turtle.draw_rectangle_square(width, height)
 
     def draw_complex_shape(self):
         sides = simpledialog.askinteger("Input", "Enter number of sides:", parent=self.window)
@@ -253,15 +258,74 @@ class TurtleSimulatorAppUI:
     def about(self):
         tk.messagebox.showinfo("About", "Turtle Simulator\nVersion 1.0\nCreated by Abdulbaasit Sanusi")
 
+    def demo(self):
+        # Reset the canvas and turtle position
+        self.turtle.clear()
+        
+        # Set a thicker pen width for better visibility
+        self.turtle.set_width(5)
+
+        # list of colors for the shapes
+        colors = ["blue", "green", "yellow", "red", "purple", "orange", "pink", "cyan", "magenta"]
+
+        # Set initial position for the turtle
+        start_x = self.canvas.winfo_width() / 2 - 300  # done to center the shapes
+        start_y = self.canvas.winfo_height() / 2 - 200 
+
+        # a list of functions to draw the shapes
+        shape_functions = [
+            (self.turtle.draw_polygon, 3, 50),  # Triangle
+            (self.turtle.draw_rectangle_square, 50, 50),  # Square
+            (self.turtle.draw_rectangle_square, 80, 50),  # Rectangle
+            (self.turtle.draw_circle, 25),  # Circle
+            (self.turtle.draw_polygon, 5, 40),  # Pentagon
+            (self.turtle.draw_polygon, 6, 35),  # Hexagon
+            (self.turtle.draw_polygon, 7, 30),  # Heptagon
+            (self.turtle.draw_polygon, 8, 25),  # Octagon
+            (self.turtle.draw_polygon, 9, 20)   # Nonagon
+        ]
+
+        for i, (draw_func, *args) in enumerate(shape_functions):
+            
+            # Move the turtle to the starting position
+            start_x += 100
+            # start_y += 100
+            self.turtle.move_to(start_x, start_y)
+            self.turtle.set_pen_down()
+
+            # Draw and fill the shape
+            draw_func(*args)
+            self.turtle.fill_last_shape(colors[i])
+
+            # Move to the next line or to the right after drawing
+            if i % 3 == 2:  # After every three shapes, move down to start a new line
+                start_x = self.canvas.winfo_width() / 2 - 300  # Reset x position
+                start_y += 200  # Move down
+            else:
+                start_x += 100  # Move right
+            
+            self.turtle.set_pen_up()
+
+        # Move the turtle away from the last drawn shape
+        self.turtle.move_to(start_x + 100, start_y)
+
     def run(self):
-        self.turtle.start_new_shape()
-        self.turtle.draw_circle(50)
-        # self.turtle.fill_last_shape("red")
-        # self.window.resizable(False, False) # prevent resizing of window (setting window to fixed size for now)
+
         self.window.title("Turtle Simulator")
+        self.window.update_idletasks()
+        self.canvas_width = self.window.winfo_width()
+        self.canvas_height = self.window.winfo_height()
+        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+        self.turtle.x = self.canvas_width / 2
+        self.turtle.y = self.canvas_height / 2
+        self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
+        self.turtle._update_turtle_icon()
+        
         self.window.mainloop()
+
 
 
 if __name__ == "__main__":
     app = TurtleSimulatorAppUI()
     app.run()
+    
