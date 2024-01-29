@@ -13,6 +13,14 @@ class Shapes:
         self.current_shape_vertices = []
         self.last_shape_type = None
 
+    def animation(self, delay_time = 0.1):
+        """
+        Animates the turtle.
+        delay_time: Delay time between each action.
+        """
+        self.canvas.update()
+        time.sleep(delay_time)
+
     def start_new_shape(self):
         """
         Starts a new shape.
@@ -41,27 +49,45 @@ class Shapes:
         # Create an overlay shape with fill color
         self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
 
-    def fill_rectangle(self, fill_color):
+    def fill_rectangle_square(self, fill_color):
         """
         Fills the last rectangle drawn.
         """
-        if self.last_shape_type != 'rectangle':
-            print("No rectangle to fill")
+        # if self.last_shape_type != 'rectangle' and self.last_shape_type != 'square':
+        if self.last_shape_type not in ['rectangle', 'square']:
+            print("No rectangle/square to fill")
             return
 
         if not self.current_shape_vertices:
             print("No shape to fill")
             return
-
+    
         # Calculate the bounding box
         min_x = min(self.current_shape_vertices, key=lambda x: x[0])[0]
         min_y = min(self.current_shape_vertices, key=lambda x: x[1])[1]
         max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
         max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
 
+        print(f"Bounding Box: ({min_x}, {min_y}), ({max_x}, {max_y})")
+
         # Create an overlay shape with fill color
         self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
 
+    def fill_polygon(self, fill_color):
+        """
+        Fills the last polygon drawn.
+        """
+        if self.last_shape_type not in ['hexagon', 'pentagon', 'polygon']:
+            print("No polygon to fill")
+            return
+
+        if not self.current_shape_vertices:
+            print("No shape to fill")
+            return
+
+        # creates an overlay shape with fill color
+        self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
+    
     def fill_last_shape(self, fill_color):
         """
         Fills the last shape drawn.
@@ -71,17 +97,15 @@ class Shapes:
         if self.last_shape_type == 'circle' and len(self.current_shape_vertices) > 0:
             self.fill_circle(fill_color)
 
-        elif self.last_shape_type == 'rectangle' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_rectangle(fill_color)
+        elif (self.last_shape_type == 'rectangle' or self.last_shape_type == "square") and len(self.current_shape_vertices) > 0:
+            # pass
+            self.fill_rectangle_square(fill_color)
         
         elif self.last_shape_type == 'complex' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_complex_shape(fill_color)
+            self.fill_complex_shape(fill_color)
 
-        elif self.last_shape_type == 'polygon' and len(self.current_shape_vertices) > 0:
-            pass
-            # self.fill_polygon(fill_color)
+        elif (self.last_shape_type == 'pentagon' or self.last_shape_type == "hexagon" )and len(self.current_shape_vertices) > 0:
+            self.fill_polygon(fill_color)
         else:
             print("No shape to fill")
             return
@@ -97,39 +121,62 @@ class Shapes:
         angle = 360 / n
         self.last_shape_type = 'circle'
 
-        delay_time = 0.01
-
         for _ in range(n):
             self.move_at_angle(segment_length)
             self.turn_right(angle)
             self.current_shape_vertices.append((self.x, self.y))
-            self.canvas.update()
-            time.sleep(delay_time)
+            self.animation()
 
-    def draw_rectangle(self, width, height):
+    def draw_rectangle_square(self, width, height):
         """
         Draws a rectangle with a given width and height.
         width: Width of the rectangle.
         height: Height of the rectangle.
         """
+        
+        if width == height:
+            self.last_shape_type = 'square'
+        else:
+            self.last_shape_type = 'rectangle'
+
+        self.current_shape_vertices.clear()
+        self.current_shape_vertices.append((self.x, self.y))
 
         for _ in range(2):
-            self._move(self.x + width, self.y)
+            # self._move(self.x + width, self.y)
+            self.move_at_angle(width) # move right
             self.turn_right(90)
-            self._move(self.x, self.y + height)
+            self.animation(0.1)
+            self.current_shape_vertices.append((self.x, self.y))
+            # print(f"Current Shape Vertices: {self.current_shape_vertices}")
+            # self._move(self.x, self.y + height)
+            self.move_at_angle(height) # move down
             self.turn_right(90)
+            self.animation(0.1)
+            self.current_shape_vertices.append((self.x, self.y))
+            print(f"Current Shape Vertices: {self.current_shape_vertices}")
+    
 
-    def draw_complex_shape(self, sides, length):
+    def draw_polygon(self, num_sides, side_length = 15):
         """
-        Draws a complex shape with a given number of sides and length.
-        sides: Number of sides of the shape.
-        length: Length of each side of the shape.
+        Draws a polygon with a given side length.
+        side_length: Length of each side of the polygon.
         """
 
-        angle = 360 / sides
-        for _ in range(sides):
-            self._move(self.x + length, self.y)
+        if num_sides == 5:
+            self.last_shape_type = 'pentagon'
+        elif num_sides == 6:
+            self.last_shape_type = 'hexagon'
+        else:
+            self.last_shape_type = 'polygon'
+
+        angle = 360 / num_sides
+
+        for _ in range(num_sides):
+            self.move_at_angle(side_length)
+            self.current_shape_vertices.append((self.x, self.y))
             self.turn_right(angle)
+            self.animation()
 
 
 class TurtleNavigation:
@@ -177,6 +224,7 @@ class TurtleNavigation:
         self.actions.append(action) 
         self.x, self.y = new_x, new_y
         self._update_turtle_icon()
+        self.animation(0.0001)
         self.canvas.update()
 
     def move_up(self):
