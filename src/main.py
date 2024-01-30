@@ -89,6 +89,11 @@ class TurtleSimulatorAppUI:
         mouse_button_frame.grid(column=4, row=2)
         tk.Button(mouse_button_frame, text="Mouse", command=self.toggle_mouse_interaction, **button_style).grid(column=4, row=2)
 
+        #show turtle button
+        show_turtle_button_frame = tk.Frame(self.window)
+        show_turtle_button_frame.grid(column=4, row=3)
+        tk.Button(show_turtle_button_frame, text="Show Turtle", command=self.turtle.toggle_turtle_icon, **button_style).grid(column=4, row=3)
+
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
 
@@ -103,9 +108,9 @@ class TurtleSimulatorAppUI:
 
         # shapes menu
         shapes_menu = tk.Menu(menu_bar, tearoff=0)
-        shapes = [("Triangle", self.draw_polygon),("Square", self.draw_rectangle),("Rectangle", self.draw_rectangle), ("Circle", self.draw_circle),
-        ("Pentagon", self.draw_polygon), ("Hexagon", self.draw_polygon), ("Heptagon", self.draw_polygon), 
-        ("Octagon", self.draw_polygon), ("Nonagon", self.draw_polygon),
+        shapes = [("Triangle", lambda: self.draw_shape(3)),("Square", self.draw_rectangle),("Rectangle", self.draw_rectangle), ("Circle", self.draw_circle),
+        ("Pentagon", lambda: self.draw_shape(5)), ("Hexagon", lambda: self.draw_shape(6)), ("Heptagon", lambda: self.draw_shape(7)), 
+        ("Octagon", lambda: self.draw_shape(8)), ("Nonagon", lambda: self.draw_shape(9)),
         ("Polygon", self.draw_polygon)]
         for shape in shapes:
             self.add_command_to_menu(shapes_menu, shape[0], shape[1])
@@ -238,7 +243,19 @@ class TurtleSimulatorAppUI:
             if fill:
                 self.turtle.fill_last_shape(fill)
 
-    def draw_polygon(self, ):
+    def draw_shape(self, num_sides):
+        length = simpledialog.askstring("Input", "Enter length of each side(optional):", parent=self.window)
+        if length:
+            length = int(length)
+        else:
+            length = None 
+        fill = simpledialog.askstring("Input", "Enter fill colour(optional):", parent=self.window)
+        if length:
+            self.turtle.draw_polygon(num_sides = num_sides,side_length = length)
+            if fill:
+                self.turtle.fill_last_shape(fill)
+
+    def draw_polygon(self):
         sides = simpledialog.askinteger("Input", "Enter number of sides:", parent=self.window)
         length = simpledialog.askstring("Input", "Enter length of each side(optional):", parent=self.window)
         if length:

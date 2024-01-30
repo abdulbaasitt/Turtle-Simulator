@@ -355,6 +355,8 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.pen_down = True
         self.actions = []
         self.undone_actions = []
+        self.turtle_icon_visible = True
+
 
 
     def _create_turtle_icon(self, x, y):
@@ -515,9 +517,6 @@ class TurtleSimulator(Shapes, TurtleNavigation):
                                     fill=action['color'], width=action['width'])
         self._update_turtle_icon()
         self.canvas.update()
-        # TODO:  fix this so that it doesn't create a new turtle icon every time
-        # Temporary fix for turtle icon not showing up
-        # self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
         self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
         self._update_turtle_icon()
 
@@ -530,3 +529,16 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.angle = 0
         self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
         self._update_turtle_icon()
+
+    def toggle_turtle_icon(self):
+        """
+        Toggles the visibility of the turtle icon.
+        """
+        if self.turtle_icon_visible:
+            for part in self.turtle_icon_parts:
+                self.canvas.itemconfig(part, state='hidden')
+            self.turtle_icon_visible = False
+        else:
+            for part in self.turtle_icon_parts:
+                self.canvas.itemconfig(part, state='normal')
+            self.turtle_icon_visible = True
