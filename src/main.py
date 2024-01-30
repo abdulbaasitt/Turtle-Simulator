@@ -33,10 +33,11 @@ class TurtleSimulatorAppUI:
         self.turtle_icon_visibility = True
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
 
+        # toggle buttons initialization
         self.init_mouse_toggle_button()
         self.init_turtle_icon_toggle_button()
+        self.init_pen_state_toggle_button()
 
-    
     def change_canvas_bg_color(self, color):
         """Change the background color of the canvas."""
         self.canvas.config(bg=color)
@@ -50,33 +51,34 @@ class TurtleSimulatorAppUI:
         tk.Button(frame, text="↓", command=self.turtle.move_down, **button_style).grid(column=2, row=3)
         tk.Button(frame, text="←", command=self.turtle.move_left, **button_style).grid(column=1, row=2)
         tk.Button(frame, text="→", command=self.turtle.move_right, **button_style).grid(column=3, row=2)
-        tk.Button(frame, text="↰", command=self.turtle.turn_left, **button_style).grid(column=1, row=1)
-        tk.Button(frame, text="↱", command=self.turtle.turn_right, **button_style).grid(column=3, row=1)
     
     def add_pen_up_pen_down_buttons(self, frame, button_style):
-        tk.Button(frame, text="Pen Up", command=self.turtle.set_pen_up, **button_style).grid(column=1, row=1)
-        tk.Button(frame, text="Pen Down", command=self.turtle.set_pen_down, **button_style).grid(column=2, row=1)
+        tk.Button(frame, text="Pen Up", command=self.turtle.set_pen_up, **button_style).grid(column=0, row=1)
+        tk.Button(frame, text="Pen Down", command=self.turtle.set_pen_down, **button_style).grid(column=1, row=1)
     
-    def add_undo_redo_buttons(self, frame, button_style):
+    def add_clear_demo_origin_undo_buttons(self, frame, button_style):
+        tk.Button(frame, text="Reset", command=self.turtle.clear, **button_style).grid(column=2, row=2)
+        tk.Button(frame, text="Demo", command=self.demo, **button_style).grid(column=2, row=1)
         tk.Button(frame, text="Undo", command=self.turtle.undo, **button_style).grid(column=1, row=1)
-        # tk.Button(frame, text="Redo", command=self.turtle.redo, **button_style).grid(column=2, row=1)
-
-    def add_clear_demo_origin_buttons(self, frame, button_style):
-        tk.Button(frame, text="Reset", command=self.turtle.clear, **button_style).grid(column=1, row=2)
-        tk.Button(frame, text="Demo", command=self.demo, **button_style).grid(column=1, row=3)
-        tk.Button(frame, text="Origin", command=self.turtle.move_to_origin, **button_style).grid(column=2, row=2)
+        tk.Button(frame, text="Origin", command=self.turtle.move_to_origin, **button_style).grid(column=1, row=2)
     
     def init_mouse_toggle_button(self):
         self.mouse_button_frame = tk.Frame(self.window)
-        self.mouse_button_frame.grid(column=4, row=2)
+        self.mouse_button_frame.grid(column=2, row=1)
         self.mouse_toggle_button = tk.Button(self.mouse_button_frame, text="Enable Mouse", command=self.toggle_mouse_interaction)
-        self.mouse_toggle_button.grid(column=4, row=2)
+        self.mouse_toggle_button.grid(column=2, row=1)
 
     def init_turtle_icon_toggle_button(self):
         self.show_turtle_button_frame = tk.Frame(self.window)
-        self.show_turtle_button_frame.grid(column=4, row=3)
+        self.show_turtle_button_frame.grid(column=1, row=1)
         self.turtle_icon_toggle_button = tk.Button(self.show_turtle_button_frame, text="Hide Turtle", command=self.toggle_turtle_icon_visibility)
-        self.turtle_icon_toggle_button.grid(column=4, row=3)
+        self.turtle_icon_toggle_button.grid(column=1, row=1)
+    
+    def init_pen_state_toggle_button(self):
+        self.pen_state_button_frame = tk.Frame(self.window)
+        self.pen_state_button_frame.grid(column=4, row=1)
+        self.pen_state_toggle_button = tk.Button(self.pen_state_button_frame, text="Pen Up", command=self.toggle_pen_state)
+        self.pen_state_toggle_button.grid(column=4, row=1)
 
     def toggle_turtle_icon_visibility(self):
         self.turtle.toggle_turtle_icon()  
@@ -91,8 +93,26 @@ class TurtleSimulatorAppUI:
         self.mouse_interaction_enabled = not self.mouse_interaction_enabled 
         if self.mouse_interaction_enabled:
             self.mouse_toggle_button.config(text="Disable Mouse")
+            self.turtle.set_pen_up()
+            self.pen_state_toggle_button.config(text="Pen Down")
+            
         else:
             self.mouse_toggle_button.config(text="Enable Mouse")
+            self.turtle.set_pen_down()
+            self.pen_state_toggle_button.config(text="Pen Up")
+            # if self.mouse_interaction_enabled:
+            self.mouse_interaction_enabled = False
+            self.mouse_toggle_button.config(text="Enable Mouse")
+    
+    def toggle_pen_state(self):
+        if self.turtle.pen_down:
+            self.turtle.set_pen_up()
+            self.pen_state_toggle_button.config(text="Pen Down")
+            self.mouse_interaction_enabled = False
+            self.mouse_toggle_button.config(text="Enable Mouse")
+        else:
+            self.turtle.set_pen_down()
+            self.pen_state_toggle_button.config(text="Pen Up")
 
     def button_display(self):
         button_style = {"borderwidth": 2, "relief": "raised"}
@@ -102,20 +122,10 @@ class TurtleSimulatorAppUI:
         self.add_direction_buttons(direction_button_frame, button_style)
         direction_button_frame.grid(column=3, row=1)
         
-        # pen up/down buttons
-        pen_button_frame = tk.Frame(self.window)
-        self.add_pen_up_pen_down_buttons(pen_button_frame, button_style)
-        pen_button_frame.grid(column=4, row=1) 
-
-        # undo/redo buttons
-        undo_redo_button_frame = tk.Frame(self.window)
-        self.add_undo_redo_buttons(undo_redo_button_frame, button_style)
-        undo_redo_button_frame.grid(column=5, row=1)
-
         # clear/demo/origin buttons
         clear_demo_origin_button_frame = tk.Frame(self.window)
-        self.add_clear_demo_origin_buttons(clear_demo_origin_button_frame, button_style)    
-        clear_demo_origin_button_frame.grid(column=5, row=3)
+        self.add_clear_demo_origin_undo_buttons(clear_demo_origin_button_frame, button_style)    
+        clear_demo_origin_button_frame.grid(column=5, row=1)
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
@@ -168,7 +178,7 @@ class TurtleSimulatorAppUI:
     def handle_canvas_click(self, event):
         # Only act on mouse click if interaction is enabled
         if self.mouse_interaction_enabled:
-            self.turtle.set_pen_up()
+            # self.turtle.set_pen_up()
             self.turtle.mouse_move(event.x, event.y)
     
     def keyboard_bind_helper(self, key, func):
@@ -203,7 +213,7 @@ class TurtleSimulatorAppUI:
             self.keyboard_bind_helper(key, function)
 
         # Bind mouse events
-        self.canvas.bind("<Button-1>", self.handle_canvas_click)
+        # self.canvas.bind("<Button-1>", self.handle_canvas_click)
 
     def new_file(self):
         self.canvas.delete("all")
@@ -364,6 +374,9 @@ class TurtleSimulatorAppUI:
         self.turtle.y = self.canvas_height/2 - 80
         self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
         self.turtle._update_turtle_icon()
+
+        self.canvas.bind("<Button-1>", self.handle_canvas_click)
+
         
         self.window.mainloop()
 

@@ -136,13 +136,11 @@ class Shapes:
         for _ in range(2):
             # self._move(self.x + width, self.y)
             self.move_at_angle(width) # move right
-            self.turn_right(90)
+            self.turn_at_90(90)
             self.animation(0.1)
             self.current_shape_vertices.append((self.x, self.y))
-            # print(f"Current Shape Vertices: {self.current_shape_vertices}")
-            # self._move(self.x, self.y + height)
             self.move_at_angle(height) # move down
-            self.turn_right(90)
+            self.turn_at_90(90)
             self.animation(0.1)
             self.current_shape_vertices.append((self.x, self.y))
             print(f"Current Shape Vertices: {self.current_shape_vertices}")
@@ -174,7 +172,7 @@ class Shapes:
         for _ in range(num_sides):
             self.move_at_angle(side_length)
             self.current_shape_vertices.append((self.x, self.y))
-            self.turn_right(angle)
+            self.turn_at_90(angle)
             self.animation()
 
     def draw_circle(self, radius):  
@@ -192,7 +190,7 @@ class Shapes:
 
         for _ in range(n):
             self.move_at_angle(segment_length)
-            self.turn_right(angle)
+            self.turn_at_90(angle)
             self.current_shape_vertices.append((self.x, self.y))
             self.animation()
 
@@ -319,21 +317,7 @@ class TurtleNavigation:
             self._update_turtle_icon()
             self.canvas.update()
 
-    # OLD TURN LEFT
-    # def turn_left(self, angle=90):
-    #     self.angle = (self.angle + 90) % 360
-    #     self.move_at_angle(10)
-    
-    def turn_left(self, angle=90):
-        self.angle = (self.angle + angle) % 360 # TODO: Fix this to turn_left
-        self.move_at_angle(angle)
-
-    # OLD TURN RIGHT
-    # def turn_right(self, angle=90):
-    #     self.angle = (self.angle + 90) % 360
-    #     self.move_at_angle(10)
-
-    def turn_right(self, angle=90):
+    def turn_at_90(self, angle=90):
         self.angle = (self.angle + angle) % 360
         self.move_at_angle(angle)
 
