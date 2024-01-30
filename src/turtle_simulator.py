@@ -307,7 +307,7 @@ class TurtleNavigation:
     #     self.move_at_angle(10)
     
     def turn_left(self, angle=90):
-        self.angle = (self.angle + angle) % 360
+        self.angle = (self.angle + angle) % 360 # TODO: Fix this to turn_left
         self.move_at_angle(angle)
 
     # OLD TURN RIGHT
@@ -353,34 +353,9 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.line_width = 1
         self.angle = 0 
         self.pen_down = True
-        # turtleImage = Image.open("../Assets/turtle_white_background.png") #TODO:  add file not found exception(FileNotFoundError:g)
-        # # turtleImage = Image.open("../Assets/roamer_robot_small.png")
-        # self.turtle_image = ImageTk.PhotoImage(turtleImage)
-        # self.turtle_icon = self.canvas.create_image(self.x, self.y, image=self.turtle_image)
-        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
-        # self.turtleImage = turtleImage
         self.actions = []
         self.undone_actions = []
 
-        #  TODO: Rotate turtle icon for Image. Set it up on Screen
-        # def _rotate_turtle_icon(self, angle):
-        #     """
-        #     Rotates the turtle icon.
-        #     angle: Angle to rotate the turtle icon.
-        #     """
-        #     center = self.turtleImage.size[0] / 2, self.turtleImage.size[1] / 2
-        #     rotated_image = self.turtleImage.rotate(angle, center=center, expand=True)
-        #     self.turtle_image = ImageTk.PhotoImage(rotated_image)
-        #     self.canvas.itemconfig(self.turtle_icon, image=self.turtle_image)
-        #     self.canvas.coords(self.turtle_icon, self.x, self.y)
-
-        #  TODO: Update turtle icon for Image. Set it up on Screen
-        # def _update_turtle_icon(self):
-        #     """
-        #     Updates the turtle icon on the canvas.
-        #     """
-        #     self._rotate_turtle_icon(-self.angle)
-        #     self.canvas.coords(self.turtle_icon,self.x, self.y)
 
     def _create_turtle_icon(self, x, y):
         """
@@ -437,16 +412,6 @@ class TurtleSimulator(Shapes, TurtleNavigation):
                     rect_y2 = rect_y1 + size
                     self.canvas.coords(rect_id, rect_x1, rect_y1, rect_x2, rect_y2)
 
-    def _rotate_turtle_icon(self, angle):
-        """
-        Rotates the turtle icon around its center by the given angle.
-        """
-        self.angle = (self.angle + angle) % 360
-        # Delete the current turtle icon
-        for rect in self.turtle_icon_parts:
-            self.canvas.delete(rect)
-        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
-    
     def set_pen_up(self):
         """
         Lifts the pen up.

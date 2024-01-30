@@ -11,7 +11,6 @@ from tkinter import simpledialog # for drawing shapes
 
 class TurtleSimulatorAppUI:
     def __init__(self):
-
         # Window setup
         self.window = tk.Tk()
         self.window.title("Turtle Simulator")
@@ -20,156 +19,158 @@ class TurtleSimulatorAppUI:
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
         self.window.geometry(f"{screen_width}x{screen_height}+0+0")
+        self.window.grid_rowconfigure(0, weight=1)
 
-        self.window.grid_rowconfigure(0, weight=3)
-        for i in range(1, 6):
-            # makes row expandable
-            self.window.grid_rowconfigure(0, weight=1) # make canvas expand to fill window
-            # makes column expandable
-            self.window.grid_columnconfigure(0, weight=1)   # make canvas expand to fill window 
- 
         # Canvas setup
         self.canvas_height = self.window.winfo_height()
         self.canvas_width = self.window.winfo_width()
         self.canvas = tk.Canvas(self.window, bg="white", height=self.canvas_height, width=self.canvas_width)
-        self.canvas.grid(column=0, row=0, columnspan=6, sticky="nsew")
-
+        self.canvas.grid(column=0, row=0, columnspan=7, sticky="nsew")
         self.turtle = TurtleSimulator(self.window, self.canvas, self.canvas_height, self.canvas_width)
-        # Prompt for initial line colour and width
-        initial_colour = simpledialog.askstring("Initial Colour", "Enter initial line colour:",
-                                                parent=self.window)
-        initial_width = simpledialog.askinteger("Initial Width", "Enter initial line width:",
-                                                parent=self.window)
-        # Set initial colour and width if user entered them
-        if initial_colour and initial_colour.lower() in ['black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'white', 'cyan', 'magenta', 'grey']:
-            self.turtle.set_colour(initial_colour)
-        else:
-            print("Invalid colour entered. Defaulting to black.")
-            self.turtle.set_colour("black")
-        
-        if initial_width:
-            self.turtle.set_width(initial_width)
-
         self.create_menu_bar(window = self.window)
         self.button_display()
+        self.mouse_interaction_enabled = False
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
-        
+    
+    def add_command_to_menu(self, menu_name, label, command):
+        menu_name.add_command(label = label, command = command)
+
+    def add_direction_buttons(self, frame, button_style):
+
+        tk.Button(frame, text="↑", command=self.turtle.move_up, **button_style).grid(column=2, row=1)
+        tk.Button(frame, text="↓", command=self.turtle.move_down, **button_style).grid(column=2, row=3)
+        tk.Button(frame, text="←", command=self.turtle.move_left, **button_style).grid(column=1, row=2)
+        tk.Button(frame, text="→", command=self.turtle.move_right, **button_style).grid(column=3, row=2)
+        tk.Button(frame, text="↰", command=self.turtle.turn_left, **button_style).grid(column=1, row=1)
+        tk.Button(frame, text="↱", command=self.turtle.turn_right, **button_style).grid(column=3, row=1)
+    
+    def add_pen_up_pen_down_buttons(self, frame, button_style):
+        tk.Button(frame, text="Pen Up", command=self.turtle.set_pen_up, **button_style).grid(column=1, row=1)
+        tk.Button(frame, text="Pen Down", command=self.turtle.set_pen_down, **button_style).grid(column=2, row=1)
+    
+    def add_undo_redo_buttons(self, frame, button_style):
+        tk.Button(frame, text="Undo", command=self.turtle.undo, **button_style).grid(column=1, row=1)
+        # tk.Button(frame, text="Redo", command=self.turtle.redo, **button_style).grid(column=2, row=1)
+
+    def add_clear_demo_origin_buttons(self, frame, button_style):
+        tk.Button(frame, text="Reset", command=self.turtle.clear, **button_style).grid(column=1, row=2)
+        tk.Button(frame, text="Demo", command=self.demo, **button_style).grid(column=1, row=3)
+        tk.Button(frame, text="Origin", command=self.turtle.move_to_origin, **button_style).grid(column=2, row=2)
+
+    def toggle_mouse_interaction(self):
+        # Toggle the state
+        self.mouse_interaction_enabled = not self.mouse_interaction_enabled
 
     def button_display(self):
-        # colour dropdown menu
-        colour_button = tk.Menubutton(self.window, text="Colour")
-        colour_button.grid(column=3, row=3, sticky="nsew")
-        colour_menu = tk.Menu(colour_button, tearoff=0)
-        colour_button["menu"] = colour_menu
-        colour_menu.add_command(label="Black", command=lambda: self.turtle.set_colour("black"))
-        colour_menu.add_command(label="Red", command=lambda: self.turtle.set_colour("red"))
-        colour_menu.add_command(label="Blue", command=lambda: self.turtle.set_colour("blue"))
-        colour_menu.add_command(label="Green", command=lambda: self.turtle.set_colour("green"))
-        colour_menu.add_command(label="Yellow", command=lambda: self.turtle.set_colour("yellow"))
-        colour_menu.add_command(label="Orange", command=lambda: self.turtle.set_colour("orange"))
-        colour_menu.add_command(label="Purple", command=lambda: self.turtle.set_colour("purple"))
-        colour_menu.add_command(label="Pink", command=lambda: self.turtle.set_colour("pink"))
-        colour_menu.add_command(label="Brown", command=lambda: self.turtle.set_colour("brown"))
-        colour_menu.add_command(label="White", command=lambda: self.turtle.set_colour("white"))
-        colour_menu.add_command(label="Cyan", command=lambda: self.turtle.set_colour("cyan"))
-        colour_menu.add_command(label="Magenta", command=lambda: self.turtle.set_colour("magenta"))
-        colour_menu.add_command(label="Grey", command=lambda: self.turtle.set_colour("grey"))
-
-        # width dropdown menu
-        width_button = tk.Menubutton(self.window, text="Width")
-        width_button.grid(column=4, row=3, sticky="nsew")
-        width_menu = tk.Menu(width_button, tearoff=0)
-        width_button["menu"] = width_menu
-        width_menu.add_command(label="1", command=lambda: self.turtle.set_width(1))
-        width_menu.add_command(label="2", command=lambda: self.turtle.set_width(2))
-        width_menu.add_command(label="3", command=lambda: self.turtle.set_width(3))
-        width_menu.add_command(label="4", command=lambda: self.turtle.set_width(4))
-        width_menu.add_command(label="5", command=lambda: self.turtle.set_width(5))
-        width_menu.add_command(label="6", command=lambda: self.turtle.set_width(6))
-        width_menu.add_command(label="7", command=lambda: self.turtle.set_width(7))
+        button_style = {"borderwidth": 2, "relief": "raised"}
 
         # direction buttons
-        tk.Button(self.window, text="↑", command=self.turtle.move_up).grid(column=1, row=1, sticky="nsew")
-        tk.Button(self.window, text="↓", command=self.turtle.move_down).grid(column=1, row=2, sticky="nsew")
-        tk.Button(self.window, text="←", command=self.turtle.move_left).grid(column=0, row=2, sticky="nsew")
-        tk.Button(self.window, text="→", command=self.turtle.move_right).grid(column=2, row=2, sticky="nsew")
-        tk.Button(self.window, text="↰", command=self.turtle.turn_left).grid(column=0, row=1, sticky="nsew")
-        tk.Button(self.window, text="↱", command=self.turtle.turn_right).grid(column=2, row=1, sticky="nsew")
+        direction_button_frame = tk.Frame(self.window)
+        self.add_direction_buttons(direction_button_frame, button_style)
+        direction_button_frame.grid(column=3, row=1)
         
         # pen up/down buttons
-        tk.Button(self.window, text="Pen Up", command=self.turtle.set_pen_up).grid(column=1, row=3, sticky="nsew")
-        tk.Button(self.window, text="Pen Down", command=self.turtle.set_pen_down).grid(column=2, row=3, sticky="nsew")
+        pen_button_frame = tk.Frame(self.window)
+        self.add_pen_up_pen_down_buttons(pen_button_frame, button_style)
+        pen_button_frame.grid(column=4, row=1) 
 
         # undo/redo buttons
-        tk.Button(self.window, text="Undo", command=self.turtle.undo).grid(column=4, row=1, sticky="nsew")
-        tk.Button(self.window, text="Redo", command=self.turtle.redo).grid(column=5, row=1, sticky="nsew")
+        undo_redo_button_frame = tk.Frame(self.window)
+        self.add_undo_redo_buttons(undo_redo_button_frame, button_style)
+        undo_redo_button_frame.grid(column=5, row=1)
 
-        tk.Button(self.window, text="Clear", command=self.turtle.clear).grid(column=5, row=2, sticky="nsew")
-        tk.Button(self.window, text="Demo", command=self.demo).grid(column=5, row=3, sticky="nsew")
-        tk.Button(self.window, text="Origin", command=self.turtle.move_to_origin).grid(column=4, row=2, sticky="nsew")
+        # clear/demo/origin buttons
+        clear_demo_origin_button_frame = tk.Frame(self.window)
+        self.add_clear_demo_origin_buttons(clear_demo_origin_button_frame, button_style)    
+        clear_demo_origin_button_frame.grid(column=5, row=3)
+
+        #mouse toggle button
+        mouse_button_frame = tk.Frame(self.window)
+        mouse_button_frame.grid(column=4, row=2)
+        tk.Button(mouse_button_frame, text="Mouse", command=self.toggle_mouse_interaction, **button_style).grid(column=4, row=2)
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
 
         # File menu
         file_menu = tk.Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="New", command=self.new_file)  
-        file_menu.add_command(label="Open", command=self.open_file)
-        file_menu.add_command(label="Save", command=self.save_drawing)
-        file_menu.add_command(label="Save as Image", command=self.save_as_image)
-        file_menu.add_command(label="Load Image", command=self.load_image)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=window.quit)
-
+        labels = [("New", self.new_file), ("Open", self.open_file), ("Save", self.save_drawing), ("Save as Image", self.save_as_image), ("Exit", window.quit)]
+        for label in labels:
+            if label[0] == "Exit":
+                file_menu.add_separator()
+            self.add_command_to_menu(file_menu, label[0], label[1])    
         menu_bar.add_cascade(label="File", menu=file_menu)
 
-        # Edit menu
-        edit_menu = tk.Menu(menu_bar, tearoff=0)
-        menu_bar.add_cascade(label="Edit", menu=edit_menu)
+        # shapes menu
+        shapes_menu = tk.Menu(menu_bar, tearoff=0)
+        shapes = [("Triangle", self.draw_polygon),("Square", self.draw_rectangle),("Rectangle", self.draw_rectangle), ("Circle", self.draw_circle),
+        ("Pentagon", self.draw_polygon), ("Hexagon", self.draw_polygon), ("Heptagon", self.draw_polygon), 
+        ("Octagon", self.draw_polygon), ("Nonagon", self.draw_polygon),
+        ("Polygon", self.draw_polygon)]
+        for shape in shapes:
+            self.add_command_to_menu(shapes_menu, shape[0], shape[1])
+        menu_bar.add_cascade(label="Shapes", menu=shapes_menu)
+
+        #colour menu
+        colour_menu = tk.Menu(menu_bar, tearoff=0)
+        colours = ["black", "red", "blue", "green", "yellow", "orange", "purple", "pink", "brown", "white", "cyan", "magenta", "grey"]
+        for colour in colours:
+            self.add_command_to_menu(colour_menu, colour, lambda colour=colour: self.turtle.set_colour(colour))
+        menu_bar.add_cascade(label="Colour", menu=colour_menu)
+
+        #width menu
+        width_menu = tk.Menu(menu_bar, tearoff=0)
+        numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12]
+        for number in numbers:
+            self.add_command_to_menu(width_menu, number, lambda number=number: self.turtle.set_width(number))
+        menu_bar.add_cascade(label="Width", menu=width_menu)
 
         # Help menu
         help_menu = tk.Menu(menu_bar, tearoff=0)
         help_menu.add_command(label="About", command= self.about) 
         menu_bar.add_cascade(label="Help", menu=help_menu)
 
-        # shapes menu
-        shapes_menu = tk.Menu(menu_bar, tearoff=0)
-        shapes_menu.add_command(label="Circle", command=self.draw_circle)
-        shapes_menu.add_command(label="Rectangle", command=self.draw_rectangle)
-        shapes_menu.add_command(label="Complex Shape", command=self.draw_complex_shape)
-        menu_bar.add_cascade(label="Shapes", menu=shapes_menu)
-
         window.config(menu=menu_bar)
+    
+    def handle_canvas_click(self, event):
+        # Only act on mouse click if interaction is enabled
+        if self.mouse_interaction_enabled:
+            self.turtle.set_pen_up()
+            self.turtle.mouse_move(event.x, event.y)
+    
+    def keyboard_bind_helper(self, key, func):
+        self.window.bind(key, func)
 
     def keyboard_and_mouse_events(self, window, canvas, turtle):
-        # Bind keyboard events
-        # for arrow keys to move the turtle
-        window.bind("<Up>", lambda e: turtle.move_up())
-        window.bind("<Down>", lambda e: turtle.move_down())
-        window.bind("<Left>", lambda e: turtle.move_left())
-        window.bind("<Right>", lambda e: turtle.move_right())
+        # Bind keyboard events for arrow keys to move the turtle
+        arrow_keys = [("<Up>", lambda e: turtle.move_up()), ("<Down>", lambda e: turtle.move_down()), 
+                      ("<Left>", lambda e: turtle.move_left()), ("<Right>", lambda e: turtle.move_right())]
+        for key, function in arrow_keys:
+            self.keyboard_bind_helper(key, function)
 
         # to change the colour of line drawn by the turtle
-        window.bind("B", lambda e: turtle.set_colour("black"))
-        window.bind("r", lambda e: turtle.set_colour("red"))
-        window.bind("g", lambda e: turtle.set_colour("green"))
-        window.bind("y", lambda e: turtle.set_colour("yellow"))
-        window.bind("o", lambda e: turtle.set_colour("orange"))
-        window.bind("p", lambda e: turtle.set_colour("purple"))
-        window.bind("b", lambda e: turtle.set_colour("blue"))
+        colour_keys = [("b", lambda e: turtle.set_colour("black")), ("r", lambda e: turtle.set_colour("red")), 
+                       ("g", lambda e: turtle.set_colour("green")), ("y", lambda e: turtle.set_colour("yellow")), 
+                       ("o", lambda e: turtle.set_colour("orange")), ("p", lambda e: turtle.set_colour("purple")), 
+                       ("l", lambda e: turtle.set_colour("blue"))]
+        for key, function in colour_keys:
+            self.keyboard_bind_helper(key, function)
 
         # to change the pen state
         window.bind("u", lambda e: turtle.set_pen_up())
         window.bind("d", lambda e: turtle.set_pen_down())
 
         #to change the turtle width
-        window.bind("1", lambda e: turtle.set_width(1))
-        window.bind("2", lambda e: turtle.set_width(2))
-        window.bind("3", lambda e: turtle.set_width(3))
-        window.bind("4", lambda e: turtle.set_width(4))
+        width_keys = [("1", lambda e: turtle.set_width(1)), ("2", lambda e: turtle.set_width(2)), 
+                      ("3", lambda e: turtle.set_width(3)), ("4", lambda e: turtle.set_width(4)), 
+                      ("5", lambda e: turtle.set_width(5)), ("6", lambda e: turtle.set_width(6)), 
+                      ("7", lambda e: turtle.set_width(7)), ("8", lambda e: turtle.set_width(8)), 
+                      ("9", lambda e: turtle.set_width(9)), ("0", lambda e: turtle.set_width(10))]
+        for key, function in width_keys:
+            self.keyboard_bind_helper(key, function)
 
         # Bind mouse events
-        canvas.bind("<Button-1>", lambda e: turtle.mouse_move(e.x, e.y))
+        self.canvas.bind("<Button-1>", self.handle_canvas_click)
 
     def new_file(self):
         self.canvas.delete("all")
@@ -220,41 +221,40 @@ class TurtleSimulatorAppUI:
             tk.messagebox.showerror("Error", f"Error saving image as {file_type}: {e}")
             print("Error saving image:", e)
 
-    def load_image(self):
-        #  get file path from user
-        file_path = tk.filedialog.askopenfilename(filetypes=[
-        ("PNG Images", "*.png"),
-        ("JPEG Images", "*.jpeg"),
-        ("JPG Images", "*.jpg")
-        ])
-        #
-        if file_path:
-            # load image and display on canvas
-            self.image = Image.open(file_path)
-            self.photo = ImageTk.PhotoImage(self.image)
-            self.canvas.create_image(0, 0, image=self.photo, anchor='nw')
-            self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
-            self.turtle._update_turtle_icon()
-
-        # TODO: Fix to prevent interaction with turtle after loading image
-
     def draw_circle(self):
         radius = simpledialog.askinteger("Input", "Enter radius:", parent=self.window)
+        fill = simpledialog.askstring("Input", "Enter fill colour(optional):", parent=self.window)
         if radius:
             self.turtle.draw_circle(radius)
+            if fill:
+                self.turtle.fill_last_shape(fill)
 
     def draw_rectangle(self):
         width = simpledialog.askinteger("Input", "Enter width:", parent=self.window)
         height = simpledialog.askinteger("Input", "Enter height:", parent=self.window)
+        fill = simpledialog.askstring("Input", "Enter fill colour(optional):", parent=self.window)
         if width and height:
             self.turtle.draw_rectangle_square(width, height)
+            if fill:
+                self.turtle.fill_last_shape(fill)
 
-    def draw_complex_shape(self):
+    def draw_polygon(self, ):
         sides = simpledialog.askinteger("Input", "Enter number of sides:", parent=self.window)
-        length = simpledialog.askinteger("Input", "Enter length of each side:", parent=self.window)
+        length = simpledialog.askstring("Input", "Enter length of each side(optional):", parent=self.window)
+        if length:
+            length = int(length)
+        else:
+            length = None 
+        fill = simpledialog.askstring("Input", "Enter fill colour(optional):", parent=self.window)
         if sides and length:
-            self.turtle.draw_complex_shape(sides, length)
-
+            self.turtle.draw_polygon(sides, length)
+            if fill:
+                self.turtle.fill_last_shape(fill)
+        elif sides:
+            self.turtle.draw_polygon(sides)
+            if fill:
+                self.turtle.fill_last_shape(fill)
+        
     def about(self):
         tk.messagebox.showinfo("About", "Turtle Simulator\nVersion 1.0\nCreated by Abdulbaasit Sanusi")
 
@@ -289,7 +289,6 @@ class TurtleSimulatorAppUI:
             
             # Move the turtle to the starting position
             start_x += 100
-            # start_y += 100
             self.turtle.move_to(start_x, start_y)
             self.turtle.set_pen_down()
 
@@ -316,13 +315,12 @@ class TurtleSimulatorAppUI:
         self.canvas_width = self.window.winfo_width()
         self.canvas_height = self.window.winfo_height()
         self.canvas.config(width=self.canvas_width, height=self.canvas_height)
-        self.turtle.x = self.canvas_width / 2
-        self.turtle.y = self.canvas_height / 2
+        self.turtle.x = self.canvas_width/2 + 5
+        self.turtle.y = self.canvas_height/2 - 80
         self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
         self.turtle._update_turtle_icon()
         
         self.window.mainloop()
-
 
 
 if __name__ == "__main__":
