@@ -178,7 +178,7 @@ class TurtleSimulatorAppUI:
     def handle_canvas_click(self, event):
         # Only act on mouse click if interaction is enabled
         if self.mouse_interaction_enabled:
-            # self.turtle.set_pen_up()
+            self.turtle.set_pen_up()
             self.turtle.mouse_move(event.x, event.y)
     
     def keyboard_bind_helper(self, key, func):
