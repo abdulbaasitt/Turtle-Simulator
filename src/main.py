@@ -52,10 +52,6 @@ class TurtleSimulatorAppUI:
         tk.Button(frame, text="←", command=self.turtle.move_left, **button_style).grid(column=1, row=2)
         tk.Button(frame, text="→", command=self.turtle.move_right, **button_style).grid(column=3, row=2)
     
-    def add_pen_up_pen_down_buttons(self, frame, button_style):
-        tk.Button(frame, text="Pen Up", command=self.turtle.set_pen_up, **button_style).grid(column=0, row=1)
-        tk.Button(frame, text="Pen Down", command=self.turtle.set_pen_down, **button_style).grid(column=1, row=1)
-    
     def add_clear_demo_origin_undo_buttons(self, frame, button_style):
         tk.Button(frame, text="Reset", command=self.turtle.clear, **button_style).grid(column=2, row=2)
         tk.Button(frame, text="Demo", command=self.demo, **button_style).grid(column=2, row=1)
@@ -211,9 +207,6 @@ class TurtleSimulatorAppUI:
                       ("9", lambda e: turtle.set_width(9)), ("0", lambda e: turtle.set_width(10))]
         for key, function in width_keys:
             self.keyboard_bind_helper(key, function)
-
-        # Bind mouse events
-        # self.canvas.bind("<Button-1>", self.handle_canvas_click)
 
     def new_file(self):
         self.canvas.delete("all")
@@ -376,8 +369,6 @@ class TurtleSimulatorAppUI:
         self.turtle._update_turtle_icon()
 
         self.canvas.bind("<Button-1>", self.handle_canvas_click)
-
-        
         self.window.mainloop()
 
 
