@@ -37,6 +37,8 @@ class TurtleSimulatorAppUI:
         self.init_mouse_toggle_button()
         self.init_turtle_icon_toggle_button()
         self.init_pen_state_toggle_button()
+        
+        self.demo_running = False
 
     def change_canvas_bg_color(self, color):
         """Change the background color of the canvas."""
@@ -179,6 +181,9 @@ class TurtleSimulatorAppUI:
     
     def keyboard_bind_helper(self, key, func):
         self.window.bind(key, func)
+    
+    def stop_demo(self):    
+        self.demo_running = False
 
     def keyboard_and_mouse_events(self, window, canvas, turtle):
         # Bind keyboard events for arrow keys to move the turtle
@@ -207,6 +212,9 @@ class TurtleSimulatorAppUI:
                       ("9", lambda e: turtle.set_width(9)), ("0", lambda e: turtle.set_width(10))]
         for key, function in width_keys:
             self.keyboard_bind_helper(key, function)
+
+        # to stop the demo
+        window.bind("q", lambda e: self.stop_demo())
 
     def new_file(self):
         self.canvas.delete("all")
@@ -307,6 +315,7 @@ class TurtleSimulatorAppUI:
         tk.messagebox.showinfo("About", "Turtle Simulator\nVersion 1.0\nCreated by Abdulbaasit Sanusi")
 
     def demo(self):
+        self.demo_running = True
         # Reset the canvas and turtle position
         self.turtle.clear()
         
@@ -334,6 +343,9 @@ class TurtleSimulatorAppUI:
         ]
 
         for i, (draw_func, *args) in enumerate(shape_functions):
+
+            if not self.demo_running:
+                break
             
             # Move the turtle to the starting position
             start_x += 100

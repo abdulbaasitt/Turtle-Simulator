@@ -51,11 +51,8 @@ class Shapes:
         max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
         max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
 
-        if self.are_all_vertices_within_canvas(self.current_shape_vertices):
-            # Create an overlay shape with fill color
-            self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
-        else:
-            print("Rectangle/Square is outside the canvas area. Cannot fill.")
+        # Create an overlay shape with fill color
+        self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
 
     def fill_polygon(self, fill_color):
         """
@@ -69,11 +66,7 @@ class Shapes:
             print("No shape to fill")
             return
         
-        if not self.are_all_vertices_within_canvas(self.current_shape_vertices):
-            # creates an overlay shape with fill color
-            self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
-        else:
-            print("Shape is outside the canvas area. Cannot fill.")
+        self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
 
     def fill_circle(self, fill_color):
         """
@@ -226,7 +219,6 @@ class TurtleNavigation:
             self._update_turtle_icon()
             self.canvas.update()
     
-    # TODO: temporary function to move the turtle without drawing(almost same as _move)
     def move_to(self, new_x, new_y):
         """
         Moves the turtle to the specified coordinates without drawing.
