@@ -13,6 +13,12 @@ class Shapes:
         self.current_shape_vertices = []
         self.last_shape_type = None
 
+    def are_all_vertices_within_canvas(self, vertices):
+        """Check if all vertices of a polygon are within the canvas boundaries."""
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        return all(0 <= x <= canvas_width and 0 <= y <= canvas_height for x, y in vertices)
+
     def animation(self, delay_time = 0.1):
         """
         Animates the turtle.
@@ -31,7 +37,6 @@ class Shapes:
         """
         Fills the last rectangle drawn.
         """
-        # if self.last_shape_type != 'rectangle' and self.last_shape_type != 'square':
         if self.last_shape_type not in ['rectangle', 'square']:
             print("No rectangle/square to fill")
             return
@@ -46,10 +51,11 @@ class Shapes:
         max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
         max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
 
-        print(f"Bounding Box: ({min_x}, {min_y}), ({max_x}, {max_y})")
-
-        # Create an overlay shape with fill color
-        self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+        if self.are_all_vertices_within_canvas(self.current_shape_vertices):
+            # Create an overlay shape with fill color
+            self.canvas.create_rectangle(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+        else:
+            print("Rectangle/Square is outside the canvas area. Cannot fill.")
 
     def fill_polygon(self, fill_color):
         """
@@ -62,9 +68,12 @@ class Shapes:
         if not self.current_shape_vertices:
             print("No shape to fill")
             return
-
-        # creates an overlay shape with fill color
-        self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
+        
+        if not self.are_all_vertices_within_canvas(self.current_shape_vertices):
+            # creates an overlay shape with fill color
+            self.canvas.create_polygon(self.current_shape_vertices, fill=fill_color, outline="")
+        else:
+            print("Shape is outside the canvas area. Cannot fill.")
 
     def fill_circle(self, fill_color):
         """
@@ -84,8 +93,11 @@ class Shapes:
         max_x = max(self.current_shape_vertices, key=lambda x: x[0])[0]
         max_y = max(self.current_shape_vertices, key=lambda x: x[1])[1]
 
-        # Create an overlay shape with fill color
-        self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+        if self.are_all_vertices_within_canvas(self.current_shape_vertices):
+            # Create an overlay shape with fill color
+            self.canvas.create_oval(min_x, min_y, max_x, max_y, fill=fill_color, outline="")
+        else:
+            print("Circle is outside the canvas area. Cannot fill.")
 
     def fill_last_shape(self, fill_color):
         """
@@ -192,6 +204,10 @@ class TurtleNavigation:
         self.angle = angle
         self.pen_down = True
 
+    def is_within_canvas(self, x, y):
+        """Check if the given coordinates are within the canvas boundaries."""
+        return 0 <= x <= self.canvas.winfo_width() and 0 <= y <= self.canvas.winfo_height()
+
     def _move(self, new_x, new_y):
         """
         Moves the turtle to a new position and draws.
@@ -199,18 +215,18 @@ class TurtleNavigation:
         new_y: New y-coordinate.
         """
         start_pos = (self.x, self.y)
-
-        if self.pen_down:
-            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
-        else:
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
-        
-        self.actions.append(action)
-        self.current_shape_vertices.append((new_x, new_y))
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.canvas.update()
+        if self.is_within_canvas(new_x, new_y):
+            if self.pen_down:
+                line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+            else:
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+            
+            self.actions.append(action)
+            self.current_shape_vertices.append((new_x, new_y))
+            self.x, self.y = new_x, new_y
+            self._update_turtle_icon()
+            self.canvas.update()
     
     # TODO: temporary function to move the turtle without drawing(almost same as _move)
     def move_to(self, new_x, new_y):
@@ -219,13 +235,14 @@ class TurtleNavigation:
         new_x: New x-coordinate to move to.
         new_y: New y-coordinate to move to.
         """
-        # Update the turtle's position
-        self.set_pen_up()
-        self.x = new_x
-        self.y = new_y
-        
-        # Update the turtle's icon to the new position without drawing a line
-        self._update_turtle_icon()
+        if self.is_within_canvas(new_x, new_y):
+            # Update the turtle's position
+            self.set_pen_up()
+            self.x = new_x
+            self.y = new_y
+            
+            # Update the turtle's icon to the new position without drawing a line
+            self._update_turtle_icon()
 
     def move_at_angle(self, distance):
         """
@@ -235,17 +252,18 @@ class TurtleNavigation:
         radian_angle = math.radians(self.angle)
         new_x = self.x + distance * math.cos(radian_angle)
         new_y = self.y - distance * math.sin(radian_angle)
-        if self.pen_down:
-            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
-            action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
-        else:
-            action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
-        
-        self.actions.append(action) 
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.animation(0.0001)
-        self.canvas.update()
+        if self.is_within_canvas(new_x, new_y):
+            if self.pen_down:
+                line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
+                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+            else:
+                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+            
+            self.actions.append(action) 
+            self.x, self.y = new_x, new_y
+            self._update_turtle_icon()
+            self.animation(0.0001)
+            self.canvas.update()
 
     def move_up(self):
         """
@@ -288,18 +306,18 @@ class TurtleNavigation:
 
         start_pos = (self.x, self.y)
         print(f"Before Move: Start ({self.x}, {self.y})")
-
-        if self.pen_down:
-            line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
-        else:
-            action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
-        
-        self.actions.append(action)
-        print(f"Action Recorded: {action}")
-        self.x, self.y = new_x, new_y
-        self._update_turtle_icon()
-        self.canvas.update()
+        if self.is_within_canvas(new_x, new_y):
+            if self.pen_down:
+                line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+            else:
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+            
+            self.actions.append(action)
+            print(f"Action Recorded: {action}")
+            self.x, self.y = new_x, new_y
+            self._update_turtle_icon()
+            self.canvas.update()
 
     # OLD TURN LEFT
     # def turn_left(self, angle=90):
@@ -349,15 +367,14 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.window = window
         self.x = canvas_width//2
         self.y = canvas_height //2
-        self.line_colour = "black"
-        self.line_width = 1
+        self.line_colour = color
+        self.line_width = 2
         self.angle = 0 
         self.pen_down = True
         self.actions = []
         self.undone_actions = []
         self.turtle_icon_visible = True
-
-
+        self.turtle_colour = color
 
     def _create_turtle_icon(self, x, y):
         """
@@ -388,7 +405,7 @@ class TurtleSimulator(Shapes, TurtleNavigation):
                     rect_y1 = y - half_size + i * size
                     rect_x2 = rect_x1 + size
                     rect_y2 = rect_y1 + size
-                    rect = self.canvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill="black") # TODO:  change to turtle colour to be slected from menu  
+                    rect = self.canvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill=self.turtle_colour) # TODO:  change to turtle colour to be slected from menu  
                     turtle_icon.append(rect)
 
         return turtle_icon

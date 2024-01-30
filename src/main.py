@@ -30,7 +30,16 @@ class TurtleSimulatorAppUI:
         self.create_menu_bar(window = self.window)
         self.button_display()
         self.mouse_interaction_enabled = False
+        self.turtle_icon_visibility = True
         self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
+
+        self.init_mouse_toggle_button()
+        self.init_turtle_icon_toggle_button()
+
+    
+    def change_canvas_bg_color(self, color):
+        """Change the background color of the canvas."""
+        self.canvas.config(bg=color)
     
     def add_command_to_menu(self, menu_name, label, command):
         menu_name.add_command(label = label, command = command)
@@ -56,10 +65,34 @@ class TurtleSimulatorAppUI:
         tk.Button(frame, text="Reset", command=self.turtle.clear, **button_style).grid(column=1, row=2)
         tk.Button(frame, text="Demo", command=self.demo, **button_style).grid(column=1, row=3)
         tk.Button(frame, text="Origin", command=self.turtle.move_to_origin, **button_style).grid(column=2, row=2)
+    
+    def init_mouse_toggle_button(self):
+        self.mouse_button_frame = tk.Frame(self.window)
+        self.mouse_button_frame.grid(column=4, row=2)
+        self.mouse_toggle_button = tk.Button(self.mouse_button_frame, text="Enable Mouse", command=self.toggle_mouse_interaction)
+        self.mouse_toggle_button.grid(column=4, row=2)
+
+    def init_turtle_icon_toggle_button(self):
+        self.show_turtle_button_frame = tk.Frame(self.window)
+        self.show_turtle_button_frame.grid(column=4, row=3)
+        self.turtle_icon_toggle_button = tk.Button(self.show_turtle_button_frame, text="Hide Turtle", command=self.toggle_turtle_icon_visibility)
+        self.turtle_icon_toggle_button.grid(column=4, row=3)
+
+    def toggle_turtle_icon_visibility(self):
+        self.turtle.toggle_turtle_icon()  
+        self.turtle_icon_visibility = not self.turtle_icon_visibility
+        if self.turtle_icon_visibility:
+            self.turtle_icon_toggle_button.config(text="Hide Turtle")
+        else:
+            self.turtle_icon_toggle_button.config(text="Show Turtle")
 
     def toggle_mouse_interaction(self):
         # Toggle the state
-        self.mouse_interaction_enabled = not self.mouse_interaction_enabled
+        self.mouse_interaction_enabled = not self.mouse_interaction_enabled 
+        if self.mouse_interaction_enabled:
+            self.mouse_toggle_button.config(text="Disable Mouse")
+        else:
+            self.mouse_toggle_button.config(text="Enable Mouse")
 
     def button_display(self):
         button_style = {"borderwidth": 2, "relief": "raised"}
@@ -83,16 +116,6 @@ class TurtleSimulatorAppUI:
         clear_demo_origin_button_frame = tk.Frame(self.window)
         self.add_clear_demo_origin_buttons(clear_demo_origin_button_frame, button_style)    
         clear_demo_origin_button_frame.grid(column=5, row=3)
-
-        #mouse toggle button
-        mouse_button_frame = tk.Frame(self.window)
-        mouse_button_frame.grid(column=4, row=2)
-        tk.Button(mouse_button_frame, text="Mouse", command=self.toggle_mouse_interaction, **button_style).grid(column=4, row=2)
-
-        #show turtle button
-        show_turtle_button_frame = tk.Frame(self.window)
-        show_turtle_button_frame.grid(column=4, row=3)
-        tk.Button(show_turtle_button_frame, text="Show Turtle", command=self.turtle.toggle_turtle_icon, **button_style).grid(column=4, row=3)
 
     def create_menu_bar(self, window):
         menu_bar = tk.Menu(window)
@@ -121,7 +144,12 @@ class TurtleSimulatorAppUI:
         colours = ["black", "red", "blue", "green", "yellow", "orange", "purple", "pink", "brown", "white", "cyan", "magenta", "grey"]
         for colour in colours:
             self.add_command_to_menu(colour_menu, colour, lambda colour=colour: self.turtle.set_colour(colour))
-        menu_bar.add_cascade(label="Colour", menu=colour_menu)
+        menu_bar.add_cascade(label="Line Colour", menu=colour_menu)
+
+        bg_colour_menu = tk.Menu(menu_bar, tearoff=0)
+        for colour in colours:
+            self.add_command_to_menu(bg_colour_menu, colour, lambda colour=colour: self.canvas.config(bg=colour))
+        menu_bar.add_cascade(label="Background Colour", menu=bg_colour_menu)
 
         #width menu
         width_menu = tk.Menu(menu_bar, tearoff=0)
