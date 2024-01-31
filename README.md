@@ -13,7 +13,10 @@ Turtle-Simulator
 ├── media                                         
 │   ├── 1_IntroDemo.gif                        
 │   ├── 2_running_the_simulator.png
-│   ├──
+│   ├── 4_drawing_lines_while_turtle_moves.gif
+│   ├── 6_changing_line_colour_and_width.gif
+│   ├── 8_drawing_different_shapes_1.gif
+│   ├── 8_drawing_different_shapes_2.gif
 ├── src                    
 │   ├── create_buttons.py
 │   ├── create_menubar.py               
@@ -35,14 +38,8 @@ Turtle-Simulator
 - [Running The Project](#running-the-project)
 - [Running in a conda environment](#running-in-a-conda-environment)
 - [File Description](#file-description)
-- [Usage](#usage)
-- [Features](#features)
-- [Dependencies](#dependencies)
-- [Configuration](#configuration)
-- [Documentation](#documentation)
-- [Examples](#examples)
-- [Troubleshooting](#troubleshooting)
-- [Contributors](#contributors)
+- [Usage, Features and Demos](#usage-features-and-demo)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [License](#license)
 
 
@@ -133,7 +130,23 @@ You should see The Turtle Simulator User Interface pop up on your screen as show
 
 ## File Description
 
-The code has been separated to s
+The code has been separated to different files for easy readability and maintainability. The files are described below
+
+### Shapes
+
+The `Shapes` class in [`shapes.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/shapes.py) is a helper class used in the `TurtleSimulator` class for drawing and filling different shapes.It also contains functions that creates the animation while drawing by using a timer to draw the shapes in small steps. 
+
+
+### Turtle Navigation
+
+The `TurtleNavigation` class in [`turtle_navigation.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/turtle_navigation.py) is a helper class used in the `TurtleSimulator` class for moving the turtle around the canvas. It contains functions to move the turtle forward, backward, left and right. It also contains functions to move the turtle to a specific location on the canvas and to move the turtle to the origin and ensures the turtle does not move outside the canvas area. 
+
+
+### Turtle Simulator
+
+The `TurtleSimulator` class in [`turtle_simulator.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/turtle_simulator.py) is the main class responsible for handling the internal states of the turtle. It contains functions to  set the state of the turtle pen, create and update the turtle icon, tracks the turtle position and heading, tracks the turtle pen colour and width and tracks the turtle visibility. It also contains functions to clear or reset the canvas and keeps track of the turtle's movement history which is used for the undo function.
+
+
 
 ### Create Button
 
@@ -142,50 +155,61 @@ The `CreateButtons` class in [`create_buttons.py`](https://github.com/abdulbaasi
 
 ### Create Menubar
 
-The `CreateMenuBar` class in [`create_menubar.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/create_menubar.py) is a helper class used in `TurtleSimulatorUI` class for creating a comprehensive and intuitive menu bar. The menu bar has the following functionalities 
-
-* **File** - This is the menu for creating New, saving a canvas, opening an existing file that has been  saved, saving the current canvas as image and exiting/closing the window. Associated functions for carrying out these task is also contained in this class. 
-* **Shapes** - This populates an easily selectable menu for drawing different shapes. It is linked with dialog boxes requesting different parameter for the different shapes and the functions for drawing these shapes after specifying the parameters.
-* **Colour and Width Selection** - This handle functions for changing the colour and width of the line draw by the turtle, it has a list of colours(13 in total) and width of 1 to 12 that can be selected. In addition to this, the background colour of the canvas can be changed here as well. 
-* **Help** - This menu handle other ancilliary services like the the about section.
-
+The `CreateMenuBar` class in [`create_menubar.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/create_menubar.py) is a helper class used in `TurtleSimulatorUI` class for creating a comprehensive and intuitive menu bar. The menu bar has the functionalities for creating new canvas, saving a canva, drawing different shapes, changing the colour and width of the line draw by the turtle, changing the background colour of the canvas.
 
 
 ### Turtle Simulator UI
 
-### Shapes
+The `TurtleSimulatorUI` class in [`turtle_simulator_UI.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/turtle_simulator_UI.py) is the main class that handles the user interface of the turtle simulator. It is the class that is called when the program is started and it is responsible for creating the canvas, the turtle, the buttons and the menu bar. It also handles the logic for all the buttons, the menu bar, keyboard and mouse functionality and the demo function.
 
-### Turtle Navigation
-
-### Turtle Simulator
+ <!-- It inherits from the "CreateButtons" and "CreateMenuBar" classes. It uses methods from the turtle_simulator.py class to draw the shapes and move the turtle around the canvas. -->
 
 ### Main
 
+The `main` function in [`main.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/main.py) is the main function that is called when the program is started. It creates an instance of the `TurtleSimulatorUI` class and runs the mainloop function(run function in TurtleSimulatorUI class) to start the program.
 
-## Usage
 
-* Control of a turtle for drawing basic geometric shapes.
+## Usage, Features and Demo
 
-* Ability to draw lines while the turtle moves, with a toggle feature for the pen.
+In this section, we will go through the different features and of the Turtle Simulator
 
-* Customization of line color and width.
+*  Drawing lines while the turtle moves, with a toggle feature for the pen.
 
-* Capability to hide the turtle icon.
+<img src="media/4_drawing_lines_while_turtle_moves.gif" width="700" height="400" />
 
-* Interaction through both on-screen and keyboard controls.
 
-## Features
-### Demo 
+* Changing Line Colour, Background Colour and Line Width
 
-### Drawing Different Shapes
+<img src="media/6_changing_line_colour_and_width.gif" width="700" height="400" />
 
-### Moving Around the Canvas
+* Drawing Different Shapes and  hiding the turtle icon.
 
-### keyboard Shortcuts
+<img src="media/8_drawing_different_shapes_1.gif" width="700" height="400" />
 
-## Examples
+<img src="media/8_drawing_different_shapes_2.gif" width="700" height="400" />
 
-## Troubleshooting
+
+## keyboard Shortcuts
+
+The following keyboard shortcuts are available for the Turtle Simulator
+
+| Functionality | Shortcut | 
+|----------     |----------|
+|      Move Up         |    ↑      |
+|      Move Down         |    ↓      |
+|      Move Left         |    ←      |
+|      Move Right         |    →      |
+|      set line colour black         |   b       |
+|      set line colour red         |      r    |
+|      set line colour green         |    g      | 
+|      set line colour orange         |    o      | 
+|      set line colour purple         |     p     | 
+|      set line colour yellow         |    y      | 
+|      set line colour blue         |       l   | 
+|      set pen up          |    u      | 
+|      set pen down          |   d       | 
+|      set line width         |  1 to 10        | 
+| Quit while demo is running      |    q      |
 
 
 ## License
