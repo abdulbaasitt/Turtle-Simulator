@@ -2,8 +2,17 @@
 
 ## Introduction
 
-Turtle Simulator is a small educational program that allows users to control a turtle to draw shapes on the screen using simple commands. It's designed to be an interactive and fun way to learn basic programming and graphical concepts. The turtle can draw basic shapes like triangles, squares, rectangles, circles, and polygons (up to 10 sides). Users can control the turtle using either the arrow keys on the screen or the keyboard. The turtle is capable of drawing lines as it moves, which can be toggled on or off, and the turtle icon itself can be hidden. Additionally, users can customize the color and width of the lines drawn by the turtle.
+Turtle Simulator is a small educational program that allows users to control a turtle to draw shapes on the screen using simple commands. It's designed to be an interactive and fun way to learn basic programming and graphical concepts. The turtle can draw basic shapes like triangles, squares, rectangles, circles, and polygons. Users can control the turtle using either the arrow keys on the screen or the keyboard. The turtle is capable of drawing lines as it moves, which can be toggled on or off, and the turtle icon itself can be hidden. Additionally, users can customize the colour and width of the lines drawn by the turtle.
 
+<img src="media/IntroDemo.gif" width="700" height="400" />
+
+
+## Repository Structure
+<!-- Turtle-Simulator/
+├── Assets/
+│   └── IntroDemo.gif
+
+└── README.md -->
 
 
 
@@ -19,6 +28,16 @@ Turtle Simulator is a small educational program that allows users to control a t
 - [Troubleshooting](#troubleshooting)
 - [Contributors](#contributors)
 - [License](#license)
+
+
+## Dependencies
+tkinter
+PIL (Python Imaging Library)
+
+## Running Locally 
+
+
+## Running in a conda environment
 
 ## Installation
 
@@ -42,30 +61,39 @@ python3 main.py
 
 ## File Description
 
+### Create Button 
+
+### Create Menubar
+
+### Turtle Simulator UI
+
+### Shapes
+
+### Turtle Navigation
+
+### Turtle Simulator
+
+### Main
+
+
+
 ## Features
-tkinter
-PIL (Python Imaging Library)
-## Dependencies
+### Demo 
 
+### Drawing Different Shapes
 
+### Moving Around the Canvas
 
-## Configuration
-
-
-## Documentation
-
+### keyboard Shortcuts
 
 
 ## Examples
 
 
-
 ## Troubleshooting
 
 
-
 ## Contributors
-
 
 
 ## License
