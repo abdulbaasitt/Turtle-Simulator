@@ -31,7 +31,10 @@ Turtle-Simulator
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Running The Project](#running-the-project)
+- [Running in a conda environment](#running-in-a-conda-environment)
+- [File Description](#file-description)
 - [Usage](#usage)
 - [Features](#features)
 - [Dependencies](#dependencies)
@@ -47,7 +50,7 @@ Turtle-Simulator
 
 ### Dependencies for Running Locally
 
-To run the project, you should have the following installed
+To run the project, you should have the following installed following softwares and packages
 
 * python  >= 3.8 
     * All Operating Systems: [click here for installation instructions](https://www.python.org/downloads/)
@@ -60,18 +63,18 @@ To run the project, you should have the following installed
 * json == 2.0.9
     * Already Installed by default when installing python
  
-### Running The Project
+## Running The Project
 
 To run the project, clone the project into a directory where you want to run it by running the below command in your terminal
 
 ```bash
 git clone https://github.com/abdulbaasitt/Turtle-Simulator.git
 ```
-Then change directory to the directory where main.py is located
+Then navigate to the `src` directory where `main.py` is located using the following command change directory
 ```bash
 cd ~/Turtle-Simulator/src
 ```
-In the same terminal, run 
+In the same terminal, execute the following command to run the simulator 
 ```bash 
 python3 main.py
 ```
@@ -81,7 +84,7 @@ You should see The Turtle Simulator User Interface pop up on your screen as show
 <img src="media/2_running_the_simulator.png" width="700" height="400" />
 
 
-### Running in a conda environment
+## Running in a Conda Environment
  To run this project in a conda environment, you'll have to have conda installed. You can install conda by following this [link](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
  Once conda is installed, follow the below instructions to run the run the project
@@ -128,14 +131,36 @@ You should see The Turtle Simulator User Interface pop up on your screen as show
 * With all the dependencies installed, you can run the project following the instruction to [run the project](#running-the-project) above
 
 
+## File Description
 
-## Installation
+The code has been separated to s
 
-To run the Turtle Simulator, navigate to the `src` directory and execute the following command:
+### Create Button
 
-```bash
-python3 main.py
-```
+The `CreateButtons` class in [`create_buttons.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/create_buttons.py) is a helper class used in the `TurtleSimulatorUI` class for handling and managing various buttons in the Turtle Simulator. The class offers a range of buttons from directional buttons to control movement on the canvas to functional buttons like reset, undo, demo and origin to toggle buttons like pen up/down and enable/disable mouse click
+
+
+### Create Menubar
+
+The `CreateMenuBar` class in [`create_menubar.py`](https://github.com/abdulbaasitt/Turtle-Simulator/blob/main/src/create_menubar.py) is a helper class used in `TurtleSimulatorUI` class for creating a comprehensive and intuitive menu bar. The menu bar has the following functionalities 
+
+* **File** - This is the menu for creating New, saving a canvas, opening an existing file that has been  saved, saving the current canvas as image and exiting/closing the window. Associated functions for carrying out these task is also contained in this class. 
+* **Shapes** - This populates an easily selectable menu for drawing different shapes. It is linked with dialog boxes requesting different parameter for the different shapes and the functions for drawing these shapes after specifying the parameters.
+* **Colour and Width Selection** - This handle functions for changing the colour and width of the line draw by the turtle, it has a list of colours(13 in total) and width of 1 to 12 that can be selected. In addition to this, the background colour of the canvas can be changed here as well. 
+* **Help** - This menu handle other ancilliary services like the the about section.
+
+
+
+### Turtle Simulator UI
+
+### Shapes
+
+### Turtle Navigation
+
+### Turtle Simulator
+
+### Main
+
 
 ## Usage
 
@@ -149,24 +174,6 @@ python3 main.py
 
 * Interaction through both on-screen and keyboard controls.
 
-## File Description
-
-### Create Button 
-
-### Create Menubar
-
-### Turtle Simulator UI
-
-### Shapes
-
-### Turtle Navigation
-
-### Turtle Simulator
-
-### Main
-
-
-
 ## Features
 ### Demo 
 
@@ -176,15 +183,31 @@ python3 main.py
 
 ### keyboard Shortcuts
 
-
 ## Examples
-
 
 ## Troubleshooting
 
 
-## Contributors
-
-
 ## License
+MIT License
+
+Copyright (c) Abdulbaasit Sanusi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
