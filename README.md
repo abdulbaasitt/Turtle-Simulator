@@ -40,6 +40,8 @@ python3 main.py
 
 * Interaction through both on-screen and keyboard controls.
 
+## File Description
+
 ## Features
 tkinter
 PIL (Python Imaging Library)

@@ -39,9 +39,11 @@ class TurtleNavigation:
         if self.is_within_canvas(new_x, new_y):
             if self.pen_down:
                 line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour,
+                         'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
             else:
-                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 
+                          'width': self.line_width, 'pen_down': self.pen_down}
             
             self.actions.append(action)
             self.current_shape_vertices.append((new_x, new_y))
