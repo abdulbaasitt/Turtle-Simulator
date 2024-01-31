@@ -15,9 +15,6 @@
  *******************************************************
 """
 
-import tkinter as tk
-from tkinter import PhotoImage
-from PIL import Image, ImageTk
 import math
 import time
 
@@ -117,7 +114,6 @@ class Shapes:
             self.fill_circle(fill_color)
 
         elif (self.last_shape_type == 'rectangle' or self.last_shape_type == "square") and len(self.current_shape_vertices) > 0:
-            # pass
             self.fill_rectangle_square(fill_color)
         
         elif (self.last_shape_type in ['triangle','pentagon', 'hexagon','heptagon', 'octagon', 'nonagon', 'polygon'] )and len(self.current_shape_vertices) > 0:
@@ -132,7 +128,6 @@ class Shapes:
         width: Width of the rectangle.
         height: Height of the rectangle.
         """
-        
         if width == height:
             self.last_shape_type = 'square'
         else:

@@ -15,12 +15,7 @@
  *******************************************************
 """
 
-import tkinter as tk
-from tkinter import PhotoImage
-from PIL import Image, ImageTk
 import math
-import time
-
 
 class TurtleNavigation:
     def __init__(self, canvas, x, y, angle = 0):
@@ -80,9 +75,11 @@ class TurtleNavigation:
         if self.is_within_canvas(new_x, new_y):
             if self.pen_down:
                 line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
-                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 
+                          'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
             else:
-                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 
+                          'width': self.line_width, 'pen_down': self.pen_down}
             
             self.actions.append(action) 
             self.x, self.y = new_x, new_y
@@ -134,9 +131,11 @@ class TurtleNavigation:
         if self.is_within_canvas(new_x, new_y):
             if self.pen_down:
                 line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
-                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 
+                          'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
             else:
-                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 'width': self.line_width, 'pen_down': self.pen_down}
+                action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour,
+                           'width': self.line_width, 'pen_down': self.pen_down}
             
             self.actions.append(action)
             print(f"Action Recorded: {action}")
