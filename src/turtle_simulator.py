@@ -47,6 +47,7 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         Creates the turtle icon on the canvas using the turtle_matrix.
         x, y: Center coordinates of the turtle.
         """
+        # a 2D matrix of 1s and 0s to represent the turtle icon
         self.turtle_matrix = [
             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],  
             [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0],  
@@ -60,17 +61,17 @@ class TurtleSimulator(Shapes, TurtleNavigation):
             ]
 
         size = 2  # Size of each individual square
-        half_size = len(self.turtle_matrix[0]) // 2 * size
+        half_size = len(self.turtle_matrix[0]) // 2 * size # Half the size of the turtle icon
 
         turtle_icon = []
 
         for i, row in enumerate(self.turtle_matrix):
             for j, val in enumerate(row):
-                if val == 1:
-                    rect_x1 = x - half_size + j * size
-                    rect_y1 = y - half_size + i * size
-                    rect_x2 = rect_x1 + size
-                    rect_y2 = rect_y1 + size
+                if val == 1: # calculate the coordinates of each square that makes up the turtle icon
+                    rect_x1 = x - half_size + j * size # x-coordinate of the top left corner of the rectangle
+                    rect_y1 = y - half_size + i * size  # y-coordinate of the top left corner of the rectangle
+                    rect_x2 = rect_x1 + size # x-coordinate of the bottom right corner of the rectangle
+                    rect_y2 = rect_y1 + size # y-coordinate of the bottom right corner of the rectangle
                     rect = self.canvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill=self.turtle_colour)
                     turtle_icon.append(rect)
 
@@ -81,21 +82,21 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         Updates the turtle icon on the canvas to a new position.
         """
         size = 2  # Size of each individual square
-        half_size = len(self.turtle_matrix[0]) // 2 * size
+        half_size = len(self.turtle_matrix[0]) // 2 * size # Half the size of the turtle icon
         counter = 0
 
     
         for i, row in enumerate(self.turtle_matrix):
             for j, val in enumerate(row):
                 if val == 1:
-                    rect_id = self.turtle_icon_parts[counter]
-                    counter += 1
+                    rect_id = self.turtle_icon_parts[counter] # get the rectangle id from the turtle_icon_parts list
+                    counter += 1 
 
-                    rect_x1 = self.x - half_size + j * size
-                    rect_y1 = self.y - half_size + i * size
-                    rect_x2 = rect_x1 + size
-                    rect_y2 = rect_y1 + size
-                    self.canvas.coords(rect_id, rect_x1, rect_y1, rect_x2, rect_y2)
+                    rect_x1 = self.x - half_size + j * size # x-coordinate of the top left corner of the rectangle
+                    rect_y1 = self.y - half_size + i * size # y-coordinate of the top left corner of the rectangle
+                    rect_x2 = rect_x1 + size # x-coordinate of the bottom right corner of the rectangle
+                    rect_y2 = rect_y1 + size # y-coordinate of the bottom right corner of the rectangle
+                    self.canvas.coords(rect_id, rect_x1, rect_y1, rect_x2, rect_y2) # update the coordinates of the rectangle
 
     def set_pen_up(self):
         """
@@ -121,54 +122,26 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         Undoes the last action.
         """
         try :
-            if len(self.actions) > 0:
-                action = self.actions.pop()
+            if len(self.actions) > 0: # Check if there are any actions to undo 
+                action = self.actions.pop() # Pop the last action from the actions list
                 print(f"Undoing Action: {action}")
-                self.undone_actions.append(action)
-                if action['type'] == 'move':
-                    self.x, self.y = action['start']
-                    self._update_turtle_icon()
-                    if 'line_id' in action:
-                        self.canvas.delete(action['line_id'])
-                    self.canvas.update()
-                elif action['type'] == 'pen':
-                    self.pen_down = not self.pen_down
-                elif action['type'] == 'color':
-                    self.line_colour = action['color']
-                elif action['type'] == 'width':
-                    self.line_width = action['width']
+                self.undone_actions.append(action) # Add the action to the undone_actions list
+                if action['type'] == 'move': # Check the type of action
+                    self.x, self.y = action['start'] # Set the turtle coordinates to the start coordinates of the action    
+                    self._update_turtle_icon() # Update the turtle icon
+                    if 'line_id' in action: # Check if the action has a line_id
+                        self.canvas.delete(action['line_id']) # Delete the line from the canvas
+                    self.canvas.update() # Update the canvas   
+                elif action['type'] == 'pen': # Check if the action is a pen action
+                    self.pen_down = not self.pen_down # Toggle the pen state
+                elif action['type'] == 'color': # Check if the action is a color action
+                    self.line_colour = action['color'] # Set the line colour to the action colour
+                elif action['type'] == 'width': # Check if the action is a width action
+                    self.line_width = action['width'] # Set the line width to the action width
                 
         except IndexError or KeyError or UnboundLocalError as e:
             print(e)
             print("No actions to undo.")
-
-    def redo(self):
-        """
-        Redoes the last action.
-        """
-        try:
-            if len(self.undone_actions) > 0:
-                action = self.undone_actions.pop()
-                print(f"Redoing Action: {action}")
-                self.actions.append(action)
-                if action['type'] == 'move':
-                    self.x, self.y = action['end']
-                    self._update_turtle_icon()
-                    if action['pen_down']:
-                        new_line_id = self.canvas.create_line(action['start'][0], action['start'][1], 
-                                                              action['end'][0], action['end'][1], 
-                                                              fill= action['color'], width=action['width'])
-                        action['line_id'] = new_line_id
-                    self.canvas.update()
-                elif action['type'] == 'pen':
-                    self.pen_down = not self.pen_down
-                elif action['type'] == 'color':
-                    self.line_colour = action['color']
-                elif action['type'] == 'width':
-                    self.line_width = action['width']
-        except IndexError or KeyError or UnboundLocalError as e:
-            print(e)
-            print("No actions to redo.")
 
     def set_colour(self, colour):
         """
@@ -188,10 +161,10 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         """
         Redraws the turtle on the canvas.
         """
-        self.canvas.delete("all")
-        self._update_turtle_icon()
+        self.canvas.delete("all") # Clear the canvas
+        self._update_turtle_icon() # Update the turtle icon
 
-        for action in actions:
+        for action in actions: # Iterate through the actions
             if action['type'] == 'move':
             # Recreate the line on the canvas
                 self.canvas.create_line(action['start'][0], action['start'][1],
@@ -199,7 +172,7 @@ class TurtleSimulator(Shapes, TurtleNavigation):
                                     fill=action['color'], width=action['width'])
         self._update_turtle_icon()
         self.canvas.update()
-        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y) # Recreate the turtle icon
         self._update_turtle_icon()
 
     def clear(self):
@@ -209,18 +182,18 @@ class TurtleSimulator(Shapes, TurtleNavigation):
         self.x = self.canvas.winfo_width() / 2
         self.y = self.canvas.winfo_height() / 2
         self.angle = 0
-        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y) # Recreate the turtle icon
         self._update_turtle_icon()
 
     def toggle_turtle_icon(self):
         """
         Toggles the visibility of the turtle icon.
         """
-        if self.turtle_icon_visible:
-            for part in self.turtle_icon_parts:
-                self.canvas.itemconfig(part, state='hidden')
-            self.turtle_icon_visible = False
+        if self.turtle_icon_visible: # Hide the turtle icon
+            for part in self.turtle_icon_parts: # Hide each part of the turtle icon
+                self.canvas.itemconfig(part, state='hidden') # Hide the turtle icon
+            self.turtle_icon_visible = False # Set the turtle icon visibility to False
         else:
             for part in self.turtle_icon_parts:
-                self.canvas.itemconfig(part, state='normal')
-            self.turtle_icon_visible = True
+                self.canvas.itemconfig(part, state='normal')  # Show each part of the turtle icon
+            self.turtle_icon_visible = True # Set the turtle icon visibility to True

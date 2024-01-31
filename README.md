@@ -40,6 +40,7 @@ Turtle-Simulator
 - [File Description](#file-description)
 - [Usage, Features and Demos](#usage-features-and-demo)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Notes](#notes)
 - [License](#license)
 
 
@@ -210,6 +211,12 @@ The following keyboard shortcuts are available for the Turtle Simulator
 |      set pen down          |   d       | 
 |      set line width         |  1 to 10        | 
 | Quit while demo is running      |    q      |
+
+## Notes
+
+The Undo button is only works for lines drawn and lines around the shape. It does not work when trying to remove a shape filled with colour. This is because the undo function only keeps track of the turtle's movement history and not the shapes drawn on the canvas.
+
+
 
 
 ## License

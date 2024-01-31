@@ -14,7 +14,7 @@ import time
 class Shapes:
     def __init__ (self, canvas):
         self.canvas = canvas
-        self.current_shape_vertices = []
+        self.current_shape_vertices = [] # List of vertices of the current shape(useful for filling shapes)
         self.last_shape_type = None
 
     def are_all_vertices_within_canvas(self, vertices):
@@ -35,7 +35,7 @@ class Shapes:
         """
         Starts a new shape.
         """
-        self.current_shape_vertices.clear()
+        self.current_shape_vertices.clear() 
     
     def fill_rectangle_square(self, fill_color):
         """
@@ -130,16 +130,14 @@ class Shapes:
         self.current_shape_vertices.append((self.x, self.y))
 
         for _ in range(2):
-            # self._move(self.x + width, self.y)
-            self.move_at_angle(width) # move right
-            self.turn_at_90(90)
+            self.move_at_angle(width) # move up
+            self.turn(90) # turn right
             self.animation(0.1)
-            self.current_shape_vertices.append((self.x, self.y))
+            self.current_shape_vertices.append((self.x, self.y)) # append the new vertex
             self.move_at_angle(height) # move down
-            self.turn_at_90(90)
+            self.turn(90) # turn right
             self.animation(0.1)
-            self.current_shape_vertices.append((self.x, self.y))
-            print(f"Current Shape Vertices: {self.current_shape_vertices}")
+            self.current_shape_vertices.append((self.x, self.y)) # to keep track of dimension to fill
     
     def draw_polygon(self, num_sides, side_length = 3):
         """
@@ -163,12 +161,12 @@ class Shapes:
         else:
             self.last_shape_type = 'polygon'
 
-        angle = 360 / num_sides
+        angle = 360 / num_sides # angle to turn at each vertex
 
         for _ in range(num_sides):
-            self.move_at_angle(side_length)
+            self.move_at_angle(side_length) # move forward by the side length
             self.current_shape_vertices.append((self.x, self.y))
-            self.turn_at_90(angle)
+            self.turn(angle) # turn by the angle of the polygon
             self.animation()
 
     def draw_circle(self, radius):  
@@ -176,8 +174,8 @@ class Shapes:
         Draws a circle with a given radius.
         radius: Radius of the circle.
        """
-        circumference = 2 * math.pi * radius
-        n = 18
+        circumference = 2 * math.pi * radius # circumference of the circle
+        n = 36
         segment_length = circumference / n
         angle = 360 / n
         self.last_shape_type = 'circle'
@@ -185,7 +183,7 @@ class Shapes:
         self.start_new_shape()
 
         for _ in range(n):
-            self.move_at_angle(segment_length)
-            self.turn_at_90(angle)
+            self.move_at_angle(segment_length) # move forward by the segment length
+            self.turn(angle) # turn by the angle of the polygon
             self.current_shape_vertices.append((self.x, self.y))
             self.animation()

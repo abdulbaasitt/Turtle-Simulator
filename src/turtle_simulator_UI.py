@@ -37,6 +37,9 @@ class TurtleSimulatorAppUI(CreateButtons, CreateMenuBar):
         # Initialise the buttons and menu bar
         CreateButtons.__init__(self, self.window, self.canvas, self.turtle)
         CreateMenuBar.__init__(self, self.window, self.canvas, self.turtle)
+
+        self.keyboard_and_mouse_events(window = self.window, canvas = self.canvas, turtle = self.turtle)
+
         
         self.demo_running = False
 
@@ -45,25 +48,32 @@ class TurtleSimulatorAppUI(CreateButtons, CreateMenuBar):
         self.canvas.config(bg=color)
     
     def handle_canvas_click(self, event):
+        """Handle mouse clicks on the canvas."""
         # Only act on mouse click if interaction is enabled
         if self.mouse_interaction_enabled:
             self.turtle.set_pen_up()
             self.turtle.mouse_move(event.x, event.y)
     
     def keyboard_bind_helper(self, key, func):
+        """Helper function to bind keyboard keys to functions."""
         self.window.bind(key, func)
     
-    def stop_demo(self):    
+    def stop_demo(self):
+        """To change the flag state when demo is running
+        so that pressing q will stop the demo"""    
         self.demo_running = False
 
     def keyboard_and_mouse_events(self, window, canvas, turtle):
+        """Function to bind keyboard and mouse events."""
         # Bind keyboard events for arrow keys to move the turtle
+        # list of tuples containing the key and function to be called
         arrow_keys = [("<Up>", lambda e: turtle.move_up()), ("<Down>", lambda e: turtle.move_down()), 
                       ("<Left>", lambda e: turtle.move_left()), ("<Right>", lambda e: turtle.move_right())]
         for key, function in arrow_keys:
             self.keyboard_bind_helper(key, function)
 
         # to change the colour of line drawn by the turtle
+        # list of tuples containing the key and function to be called
         colour_keys = [("b", lambda e: turtle.set_colour("black")), ("r", lambda e: turtle.set_colour("red")), 
                        ("g", lambda e: turtle.set_colour("green")), ("y", lambda e: turtle.set_colour("yellow")), 
                        ("o", lambda e: turtle.set_colour("orange")), ("p", lambda e: turtle.set_colour("purple")), 
@@ -88,6 +98,7 @@ class TurtleSimulatorAppUI(CreateButtons, CreateMenuBar):
         window.bind("q", lambda e: self.stop_demo())
 
     def demo(self):
+        """Function to demonstrate the turtle drawing shapes."""
         self.demo_running = True
         # Reset the canvas and turtle position
         self.turtle.clear()
@@ -142,16 +153,17 @@ class TurtleSimulatorAppUI(CreateButtons, CreateMenuBar):
         self.turtle.move_to(start_x + 100, start_y)
 
     def run(self):
+        """Function to run the application."""
 
-        self.window.title("Turtle Simulator")
-        self.window.update_idletasks()
+        self.window.title("Turtle Simulator") # Set the window title
+        self.window.update_idletasks() # Update the window to get the correct dimensions
         self.canvas_width = self.window.winfo_width()
         self.canvas_height = self.window.winfo_height()
-        self.canvas.config(width=self.canvas_width, height=self.canvas_height)
+        self.canvas.config(width=self.canvas_width, height=self.canvas_height) # Set the canvas dimensions
         self.turtle.x = self.canvas_width/2 + 5
         self.turtle.y = self.canvas_height/2 - 80
-        self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y)
+        self.turtle.turtle_icon_parts = self.turtle._create_turtle_icon(self.turtle.x, self.turtle.y) # Create the turtle icon
         self.turtle._update_turtle_icon()
 
-        self.canvas.bind("<Button-1>", self.handle_canvas_click)
+        self.canvas.bind("<Button-1>", self.handle_canvas_click) # Bind mouse click events to the canvas
         self.window.mainloop()

@@ -28,20 +28,20 @@ class TurtleNavigation:
         new_x: New x-coordinate.
         new_y: New y-coordinate.
         """
-        start_pos = (self.x, self.y)
-        if self.is_within_canvas(new_x, new_y):
-            if self.pen_down:
-                line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width)
+        start_pos = (self.x, self.y)   # Starting position of the turtle
+        if self.is_within_canvas(new_x, new_y): # Check if the new position is within the canvas boundaries
+            if self.pen_down: # Check if the pen is down
+                line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill= self.line_colour, width=self.line_width) # save the line id
                 action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour,
-                         'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+                         'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down} # save a dictionary of the action
             else:
                 action = {'type': 'move', 'start': start_pos, 'end': (new_x, new_y), 'color': self.line_colour, 
-                          'width': self.line_width, 'pen_down': self.pen_down}
+                          'width': self.line_width, 'pen_down': self.pen_down} 
             
-            self.actions.append(action)
-            self.current_shape_vertices.append((new_x, new_y))
+            self.actions.append(action) # append the action to the actions list
+            self.current_shape_vertices.append((new_x, new_y)) # append the new position to the current shape vertices list
             self.x, self.y = new_x, new_y
-            self._update_turtle_icon()
+            self._update_turtle_icon()     
             self.canvas.update()
     
     def move_to(self, new_x, new_y):
@@ -65,18 +65,18 @@ class TurtleNavigation:
         distance: Distance to move.
         """
         radian_angle = math.radians(self.angle)
-        new_x = self.x + distance * math.cos(radian_angle)
-        new_y = self.y - distance * math.sin(radian_angle)
+        new_x = self.x + distance * math.cos(radian_angle) # compute how much to move in the x direction(based on distance given)
+        new_y = self.y - distance * math.sin(radian_angle) # compute how much to move in the y direction(based on distance given)
         if self.is_within_canvas(new_x, new_y):
             if self.pen_down:
                 line_id = self.canvas.create_line(self.x, self.y, new_x, new_y, fill=self.line_colour, width=self.line_width)
                 action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 
-                          'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down}
+                          'width': self.line_width, 'line_id': line_id, 'pen_down': self.pen_down} # save a dictionary of the action
             else:
                 action = {'type': 'move', 'start': (self.x, self.y), 'end': (new_x, new_y), 'color': self.line_colour, 
                           'width': self.line_width, 'pen_down': self.pen_down}
             
-            self.actions.append(action) 
+            self.actions.append(action) # append the action to the actions list
             self.x, self.y = new_x, new_y
             self._update_turtle_icon()
             self.animation(0.0001)
@@ -138,7 +138,9 @@ class TurtleNavigation:
             self._update_turtle_icon()
             self.canvas.update()
 
-    def turn_at_90(self, angle=90):
+    def turn(self, angle=90):
+        """Turns the turtle by the given angle."""
+
         self.angle = (self.angle + angle) % 360
         self.move_at_angle(angle)
 
@@ -147,11 +149,11 @@ class TurtleNavigation:
         Moves the turtle to the center of the canvas.
         """
         for part in self.turtle_icon_parts:
-            self.canvas.delete(part)
+            self.canvas.delete(part) # delete the turtle icon parts
 
-        self.x = self.canvas.winfo_width() / 2
-        self.y = self.canvas.winfo_height() / 2
+        self.x = self.canvas.winfo_width() / 2 # set the x coordinate to the center of the canvas
+        self.y = self.canvas.winfo_height() / 2 # set the y coordinate to the center of the canvas
         self.angle = 0
-        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)        
+        self.turtle_icon_parts = self._create_turtle_icon(self.x, self.y)   # create the turtle icon parts      
         self._update_turtle_icon()
         self.set_pen_down()
