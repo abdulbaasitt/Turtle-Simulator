@@ -149,9 +149,10 @@ class CreateMenuBar:
             try:
                 if fill:
                     self.turtle.fill_last_shape(fill)
-            except:
-                print("Error: user did not enter a valid fill colour")
-
+            except Exception as e:
+                print("Error: you did not enter a valid fill colour")
+                tk.messagebox.showerror("Error", f"you did not enter a valid fill colour {fill}: {e}")
+                
     def draw_rectangle(self, shape="rectangle"):
         """Function to draw a rectangle or square."""
         if shape == "square":
@@ -166,8 +167,9 @@ class CreateMenuBar:
             try:
                 if fill:
                     self.turtle.fill_last_shape(fill)
-            except:
-                print("Error: user did not enter a valid fill colour")
+            except Exception as e:
+                tk.messagebox.showerror("Error", f"you did not enter a valid fill colour {fill}: {e}")
+                print("Error: you did not enter a valid fill colour")
 
     def draw_shape(self, num_sides):
         """Function to draw other shapes(Pentagon to Nonagon)."""
@@ -187,8 +189,9 @@ class CreateMenuBar:
                 self.turtle.draw_polygon(num_sides = num_sides,side_length = length)
                 if fill:
                     self.turtle.fill_last_shape(fill)
-        except:
-            print("Error: user did not enter a valid fill colour")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"you did not enter a valid fill colour {fill}: {e}")
+            print("Error: you did not enter a valid fill colour")
         
     def about(self):
         """Function to display information about the program."""

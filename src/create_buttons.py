@@ -61,7 +61,7 @@ class CreateButtons:
         self.pen_state_button_frame = tk.Frame(self.window)
         self.pen_state_button_frame.grid(column=4, row=1)
         self.pen_state_toggle_button = tk.Button(self.pen_state_button_frame, 
-                                                 text="Pen Up", command=self.toggle_pen_state)
+                                                 text="Set Pen Up", command=self.toggle_pen_state)
         self.pen_state_toggle_button.grid(column=4, row=1)
 
     def toggle_turtle_icon_visibility(self):
@@ -80,12 +80,12 @@ class CreateButtons:
         if self.mouse_interaction_enabled:
             self.mouse_toggle_button.config(text="Disable Mouse")  
             self.turtle.set_pen_up() # set the pen up so that the turtle doesn't draw when moving with the mouse
-            self.pen_state_toggle_button.config(text="Pen Down") # toggle the state of the pen state button
+            self.pen_state_toggle_button.config(text="Set Pen Down") # toggle the state of the pen state button
             
         else:
             self.mouse_toggle_button.config(text="Enable Mouse")
             self.turtle.set_pen_down() # pen is down so that the turtle can draw when moving with the arrow keys
-            self.pen_state_toggle_button.config(text="Pen Up")  # toggle the state of the pen state button
+            self.pen_state_toggle_button.config(text="Set Pen Up")  # toggle the state of the pen state button
             self.mouse_interaction_enabled = False # ensure that the mouse interaction is disabled
             self.mouse_toggle_button.config(text="Enable Mouse") # update the text of the mouse toggle button
     
@@ -93,12 +93,12 @@ class CreateButtons:
         """Toggle the pen state."""
         if self.turtle.pen_down:
             self.turtle.set_pen_up() 
-            self.pen_state_toggle_button.config(text="Pen Down")
+            self.pen_state_toggle_button.config(text="Set Pen Down")
             self.mouse_interaction_enabled = False
             self.mouse_toggle_button.config(text="Enable Mouse")
         else:
             self.turtle.set_pen_down()
-            self.pen_state_toggle_button.config(text="Pen Up")
+            self.pen_state_toggle_button.config(text="Set Pen Up")
 
     def button_display(self):
         """Display the buttons."""
