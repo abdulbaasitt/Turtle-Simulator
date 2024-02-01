@@ -174,16 +174,16 @@ The `main` function in [`main.py`](https://github.com/abdulbaasitt/Turtle-Simula
 
 In this section, we will go through the different features and of the Turtle Simulator
 
-*  Drawing lines while the turtle moves, with a toggle feature for the pen.
+### Drawing lines while the turtle moves, with a toggle feature for the pen.
 
 <img src="media/4_drawing_lines_while_turtle_moves.gif" width="700" height="400" />
 
 
-* Changing Line Colour, Background Colour and Line Width
+### Changing Line Colour, Background Colour and Line Width
 
 <img src="media/6_changing_line_colour_and_width.gif" width="700" height="400" />
 
-* Drawing Different Shapes and  hiding the turtle icon.
+### Drawing different shapes and  hiding the turtle icon.
 
 <img src="media/8_drawing_different_shapes_1.gif" width="700" height="400" />
 
