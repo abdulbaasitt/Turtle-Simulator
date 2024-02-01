@@ -173,20 +173,28 @@ class CreateMenuBar:
 
     def draw_shape(self, num_sides):
         """Function to draw other shapes(Pentagon to Nonagon)."""
-        length = simpledialog.askstring("Input", "Enter length of each side(optional):", parent=self.window)
+        length = simpledialog.askstring("Input", "Enter length of each side(optional)[in figures]:", parent=self.window)
         try:
             if length:
                 length = int(length)
             else:
                 length = None
-        except ValueError:
+        except ValueError as e:
             length = None
+            tk.messagebox.showerror("Error", f"Invalid length entered, Please enter a valid number: {e}")
             print("ValueError: Invalid length entered, Please enter a valid number")
-             
+            length = simpledialog.askstring("Input", "Enter length of each side again (optional)[in figures]:", parent=self.window)
+            if length:
+                length = int(length)
+        
         fill = simpledialog.askstring("Input", "Enter fill colour(optional):", parent=self.window)
         try: 
             if length:
                 self.turtle.draw_polygon(num_sides = num_sides,side_length = length)
+                if fill:
+                    self.turtle.fill_last_shape(fill)
+            else:
+                self.turtle.draw_polygon(num_sides = num_sides)
                 if fill:
                     self.turtle.fill_last_shape(fill)
         except Exception as e:
